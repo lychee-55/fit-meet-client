@@ -11,6 +11,7 @@ import UserHealthInfoPage from '@/pages/UserHealthInfoPage.vue';
 import { useAuthStore } from '@/stores/Auth';
 import HomePage from '@/pages/HomePage.vue';
 import PasswordResetPage from '@/pages/PasswordResetPage.vue';
+import UserMyPage from '@/pages/UserMyPage.vue';
 // import DashBoardPage from '@/pages/DashBoardPage.vue';
 
 const routes = [
@@ -52,6 +53,11 @@ const routes = [
     name: 'userHealthInfo',
     component: UserHealthInfoPage,
   },
+  {
+    path: '/my-page',
+    name: 'myPage',
+    component: UserMyPage,
+  },
   // {
   //   path: '/dashBoard',
   //   name: 'dashBoard',
@@ -76,7 +82,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 로그인 여부 확인
-  const ok = await store.fetchUserInfo();
+  const ok = await store.fetchBasicUserInfo();
 
   if (ok) {
     return next();

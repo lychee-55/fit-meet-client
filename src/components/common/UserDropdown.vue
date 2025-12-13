@@ -1,10 +1,13 @@
-<!-- /src/components/UserDropdown.vue -->
 <template>
-  <div class="relative" ref="dropdownRef">
-    <!-- 프로필 원형 아이콘 -->
+  <div
+    class="relative"
+    ref="dropdownRef"
+    @mouseenter="openDropdown"
+    @mouseleave="startCloseTimer"
+  >
     <button
-      @click="toggle"
-      class="w-10 h-10 rounded-full overflow-hidden border"
+      @click.stop
+      class="w-10 h-10 rounded-full overflow-hidden hover:cursor-pointer border border-transparent hover:border-[#D3A373] transition"
     >
       <img
         :src="store.userInfo?.profileImageUrl || profileImg"
@@ -12,57 +15,83 @@
       />
     </button>
 
-    <!-- 드롭다운 내용 -->
     <div
       v-if="visible"
-      class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border p-4 z-50"
+      class="absolute right-0 mt-2 w-48 bg-white shadow-xl rounded-lg py-1 z-50"
     >
-      <div class="flex items-center gap-3 mb-4">
+      <div class="flex items-center gap-3 px-4 py-2 mb-2">
         <img
           :src="store.userInfo?.profileImageUrl || profileImg"
-          class="w-10 h-10 rounded-full border"
+          class="w-10 h-10 rounded-full border border-[#D3A373] object-cover"
         />
-        <div class="font-semibold">{{ store.userInfo?.nickname }}님</div>
+        <div class="font-semibold text-sm truncate">
+          {{ store.userInfo?.nickname }}님
+        </div>
       </div>
 
-      <RouterLink
-        to="/mypage"
-        class="block py-2 hover:text-blue-600"
-        @click="close"
-      >
-        마이페이지
-      </RouterLink>
+      <hr class="text-gray-200" />
 
-      <button
-        class="w-full text-left py-2 text-red-500 hover:text-red-600"
-        @click="logout"
-      >
-        로그아웃
-      </button>
+      <div class="flex flex-col py-1">
+        <RouterLink
+          to="/my-page"
+          class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition duration-150"
+          @click="close"
+        >
+          <Cog6ToothIcon class="w-5 h-5 text-gray-500" />
+          마이페이지
+        </RouterLink>
+
+        <button
+          class="flex items-center gap-3 px-4 py-2 w-full text-left text-red-500 hover:bg-red-50 hover:text-red-600 transition duration-150"
+          @click="logout"
+        >
+          <ArrowLeftStartOnRectangleIcon class="w-5 h-5" />
+          로그아웃
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+// 스크립트 부분은 변경 없음
+import {
+  Cog6ToothIcon,
+  ArrowLeftStartOnRectangleIcon,
+} from '@heroicons/vue/24/outline';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useAuthStore } from '@/stores/Auth';
 import profileImg from '@/assets/profile.png';
 
 const store = useAuthStore();
-// const user = store.userInfo;
-
 const visible = ref(false);
 const dropdownRef = ref(null);
+let closeTimeout = null; // 닫기 타이머를 저장할 변수
 
-const toggle = () => (visible.value = !visible.value);
-const close = () => (visible.value = false);
+const openDropdown = () => {
+  // 열 때 닫기 타이머가 실행 중이면 취소
+  clearTimeout(closeTimeout);
+  visible.value = true;
+};
+
+const close = () => {
+  clearTimeout(closeTimeout);
+  visible.value = false;
+};
+
+// 마우스가 영역을 벗어났을 때, 300ms 딜레이 후 닫습니다.
+const startCloseTimer = () => {
+  clearTimeout(closeTimeout); // 기존 타이머를 확실히 제거
+  closeTimeout = setTimeout(() => {
+    close();
+  }, 300); // 300ms (0.3초) 지연
+};
 
 const logout = () => {
   store.logout();
   close();
 };
 
-// 바깥 클릭 시 닫기
 const handleClickOutside = e => {
   if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
     close();

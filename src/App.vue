@@ -7,7 +7,7 @@ const store = useAuthStore();
 
 onMounted(async () => {
   // 쿠키 기반 로그인 복구
-  await store.fetchUserInfo();
+  await store.fetchBasicUserInfo();
 });
 </script>
 

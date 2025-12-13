@@ -2,12 +2,14 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import router from '@/router';
+import { useUserStore } from './User';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     userInfo: {
       nickname: '',
       profileImageUrl: '',
+      email: '',
     },
     isLoggedIn: false,
     loadingUser: true, // 앱 로딩 시 사용자 정보 불러오는 중
@@ -46,7 +48,7 @@ export const useAuthStore = defineStore('auth', {
           this.isLoggedIn = true;
 
           // 로그인 후 사용자 정보 가져오기
-          await this.fetchUserInfo();
+          await this.fetchBasicUserInfo();
         }
 
         return res.data;
@@ -73,22 +75,24 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // 사용자 정보 조회 (/api/user/profile-info)
-    async fetchUserInfo() {
+    // 사용자 로그인 정보 조회 (/api/user/profile-info)
+    async fetchBasicUserInfo() {
       this.loadingUser = true;
+      const userStore = useUserStore();
 
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/user/profile-info`,
           { withCredentials: true },
         );
-        console.log('fetchUserInfo res:: ', res);
+        console.log('fetchBasicUserInfo res:: ', res);
 
         if (res.data.code === 0) {
           const userData = res.data.data;
           this.userInfo = {
             nickname: userData.nickname,
             profileImageUrl: userData.profileImageUrl,
+            email: userData.email,
           };
           console.log(this.userInfo);
           this.isLoggedIn = true;
@@ -102,6 +106,67 @@ export const useAuthStore = defineStore('auth', {
         this.userInfo = null;
         this.isLoggedIn = false;
         return false;
+      } finally {
+        this.loadingUser = false;
+      }
+    },
+
+    // 모든 정보 조회 (UserStore가 필요할 때 호출)
+    async fetchAllUserInfo() {
+      this.loadingUser = true;
+      const userStore = useUserStore(); // UserStore 참조
+
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/user/profile-info`,
+          { withCredentials: true },
+        );
+
+        if (res.data.code === 0) {
+          const userData = res.data.data;
+
+          // AuthStore 업데이트 (혹시 변경되었을 경우 대비)
+          this.userInfo = {
+            nickname: userData.nickname,
+            profileImageUrl: userData.profileImageUrl,
+            email: userData.email,
+          };
+
+          // UserStore에 신체 정보 저장
+          userStore.setHealthInfoFromFetch(userData);
+          this.isLoggedIn = true;
+          return true;
+        } else {
+          console.error(
+            'fetchAllUserInfo 실패: 서버 응답 코드 오류',
+            res.data.msg,
+          );
+
+          // 데이터 및 상태 초기화
+          this.userInfo = {}; // 빈 객체로 초기화
+          this.isLoggedIn = false;
+          userStore.setHealthInfoFromFetch({}); // UserStore 신체 정보도 초기화
+
+          return false; // 실패
+        }
+      } catch (err) {
+        console.error(
+          'fetchAllUserInfo API 호출 실패:',
+          err.response?.data || err,
+        );
+
+        // 데이터 및 상태 초기화
+        this.userInfo = {}; // 빈 객체로 초기화
+        this.isLoggedIn = false;
+        userStore.setHealthInfoFromFetch({}); // UserStore 신체 정보도 초기화
+
+        // 401 Unauthorized 또는 403 Forbidden과 같은 인증 오류인 경우
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          // 필요하다면 특정 오류 메시지 반환
+          // return { error: 'Unauthorized', message: '세션이 만료되었습니다.' };
+        }
+
+        return false; // 실패
       } finally {
         this.loadingUser = false;
       }
@@ -138,7 +203,6 @@ export const useAuthStore = defineStore('auth', {
           );
         }
 
-        // ... (기존 throw 로직 유지) ...
         throw {
           status: err.response?.status || 'Network Error',
           message: errorMessage,
