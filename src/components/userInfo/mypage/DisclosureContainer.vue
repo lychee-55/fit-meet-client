@@ -20,26 +20,6 @@
       </Transition>
     </Disclosure>
 
-    <!-- <Disclosure v-slot="{ open }">
-      <DisclosureButton :class="disclosureButtonClass(open)">
-        <span class="flex items-center gap-3">
-          <HeartIcon class="w-6 h-6 text-green-600" />
-          신체정보 설정
-        </span>
-        <ChevronUpIcon
-          :class="[
-            open ? 'rotate-180 transform' : '',
-            'h-5 w-5 text-gray-500 transition duration-200',
-          ]"
-        />
-      </DisclosureButton>
-      <Transition name="disclosure-slide">
-        <DisclosurePanel class="px-4 pt-4 pb-2 text-sm text-gray-500">
-          <HealthInfoSetting />
-        </DisclosurePanel>
-      </Transition>
-    </Disclosure> -->
-
     <Disclosure v-slot="{ open }">
       <DisclosureButton :class="disclosureButtonClass(open)">
         <span class="flex items-center gap-3">
@@ -100,7 +80,7 @@ import ProfileUserAndBodySetting from './ProfileUserAndBodySetting.vue';
 // Disclosure Button의 공통 Tailwind 클래스
 const disclosureButtonClass = open => [
   'flex w-full justify-between rounded-t-lg px-6 py-4 text-left text-lg font-medium text-gray-800 focus:outline-none focus-visible:ring focus-visible:ring-opacity-75 transition duration-150',
-  open ? 'bg-gray-100 hover:bg-gray-200' : 'hover:bg-gray-50',
+  open ? 'bg-[#FEF9E1] hover:bg-[#FAEDCD]' : 'hover:bg-[#FEF9E1]',
 ];
 </script>
 

@@ -1,8 +1,11 @@
-@import 'tailwindcss';
+/* @tailwind 디렉티브를 제거하거나, Tailwind V4에서 권장하는 방식으로 유지 */
+/* V4에서는 보통 Vite 플러그인이 자동으로 주입하므로, 이 파일에서 모두 제거해도 됩니다. */
+
+/* --- 기존에 정의한 커스텀 블러 클래스 유지 --- */
 
 .bg-blur-container {
   /* 기존 스타일 유지 */
-  @apply relative overflow-hidden min-h-screen;
+  @apply relative overflow-hidden min-h-screen bg-gray-900;
 }
 
 /* 🟢 왼쪽 하단 - 녹색 블러 (::before) */
@@ -15,14 +18,14 @@
     rgba(0, 255, 0, 0.4),
     rgba(0, 255, 0, 0) 70%
   );
-  filter: blur(120px);
+  filter: blur(150px);
   z-index: -1;
   pointer-events: none;
   bottom: -150px;
   left: -150px;
-  width: 800px;
-  height: 600px;
-  border-radius: 30%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
 }
 
 /* 🟠 오른쪽 상단 - 주황색 블러 (::after) */

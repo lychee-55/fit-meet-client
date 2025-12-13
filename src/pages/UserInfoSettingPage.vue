@@ -5,11 +5,9 @@
 버튼: “완료하기” / “나중에 입력” -->
 
 <template>
-    <div>
-        
-    </div>
+  <div></div>
 </template>
 
 <script></script>
 
-<style ></style>
+<style></style>

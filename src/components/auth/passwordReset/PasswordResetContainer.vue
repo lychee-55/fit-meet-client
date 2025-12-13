@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#fffcf6]">
+  <div class="min-h-screen flex items-center justify-center">
     <div class="w-full max-w-3xl grid grid-cols-1 md: gap-8 p-6">
       <div class="bg-white rounded-2xl shadow-md p-10 flex flex-col gap-4">
         <h2 class="text-3xl flex justify-center">비밀번호 재설정</h2>

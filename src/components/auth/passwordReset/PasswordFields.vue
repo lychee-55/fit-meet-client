@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <label class="text-base font-semibold text-[#8A8F6E]">비밀번호</label>
+    <label class="text-base font-semibold text-[#8A8F6E]">새 비밀번호</label>
     <p class="text-[10px] text-gray-600">
       비밀번호는 8~20자이며, 영문자ㆍ숫자ㆍ특수문자를 각각 최소 1자 이상
       포함해야 합니다.
@@ -25,7 +25,9 @@
   </div>
 
   <div class="flex flex-col mt-4">
-    <label class="text-base font-semibold text-[#8A8F6E]">비밀번호 확인</label>
+    <label class="text-base font-semibold text-[#8A8F6E]"
+      >새 비밀번호 확인</label
+    >
     <input
       type="password"
       v-model="pwCheckLocal"
@@ -52,7 +54,7 @@ const emit = defineEmits([
   'update:password',
   'update:pwCheck',
   'update:isPasswordValid',
-  'update:isMatch', // 🚨 1. isMatch emit 추가
+  'update:isMatch',
 ]);
 
 // 내부 상태 관리
@@ -141,12 +143,23 @@ const passwordMsg = computed(() => {
   }
 });
 
-// 부모 컴포넌트가 접근할 수 있도록 중요한 상태와 ref를 노출
+// 🚨 추가: 외부에서 호출하여 내부 필드를 초기화하는 함수
+function clearFields() {
+  passwordLocal.value = '';
+  pwCheckLocal.value = ''; // 초기화된 값을 부모에게 다시 전달하여 상태 동기화
+  emit('update:password', '');
+  emit('update:pwCheck', '');
+  emit('update:isPasswordValid', false);
+  emit('update:isMatch', false);
+}
+
+// 부모 컴포넌트가 접근할 수 있도록 노출
 defineExpose({
   // isMatch, isValidRegex는 이제 부모가 emit으로 받으므로 제거 (선택적)
   passwordInput: passwordInputRef, // ref 노출 (포커스용)
   passwordValue: passwordLocal,
   pwCheckValue: pwCheckLocal,
+  clearFields, // 👈 clearFields 함수 노출
 });
 </script>
 

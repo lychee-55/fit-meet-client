@@ -26,7 +26,7 @@
           v-if="!isEditMode"
           type="button"
           @click="startEditMode"
-          class="w-full py-4 mt-4 text-white text-base font-bold rounded-xl bg-[#8A8F6E] hover:bg-[#6e7256] transition shadow-lg"
+          class="w-full py-2 mt-4 text-white text-base font-bold rounded-xl bg-[#8A8F6E] hover:bg-[#6e7256] transition shadow-lg"
         >
           편집하기
         </button>

@@ -1,13 +1,3 @@
-<!-- 여기는 화면 -->
-
-<!-- 
-1. 이메일 input
-2. 이메일 input확인 div
-3. 비밀번호 input
-4. 비번확인 div
-5. 로그인 버튼
-6. 폼데이터 전송 (이메일, 비번, 로그인(통괄))
--->
 <template>
   <form @submit.prevent="submitLogin" class="flex flex-col gap-7 mt-6">
     <div class="flex flex-col">

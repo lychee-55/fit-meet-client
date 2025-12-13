@@ -12,9 +12,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <AppHeader />
-
-  <router-view />
+  <div class="bg-blur-container">
+    <AppHeader />
+    <router-view />
+  </div>
 </template>
 
 <style scoped></style>

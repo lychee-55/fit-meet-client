@@ -4,14 +4,15 @@ import { createRouter, createWebHistory } from 'vue-router';
 // 페이지 컴포넌트 import
 import LoginPage from '@/pages/LoginPage.vue';
 import SignupPage from '@/pages/SignupPage.vue';
-import UserInfoSettingPage from '@/pages/UserInfoSettingPage.vue';
+// import UserInfoSettingPage from '@/pages/UserInfoSettingPage.vue';
+// import UserHealthInfoPage from '@/pages/UserHealthInfoPage.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import UserHealthInfoPage from '@/pages/UserHealthInfoPage.vue';
 
 import { useAuthStore } from '@/stores/Auth';
 import HomePage from '@/pages/HomePage.vue';
 import PasswordResetPage from '@/pages/PasswordResetPage.vue';
 import UserMyPage from '@/pages/UserMyPage.vue';
+import NotFound from '@/components/common/NotFound.vue';
 // import DashBoardPage from '@/pages/DashBoardPage.vue';
 
 const routes = [
@@ -43,16 +44,16 @@ const routes = [
       },
     ],
   },
-  {
-    path: '/userProfile-detail',
-    name: 'UserProfileSetting',
-    component: UserInfoSettingPage,
-  },
-  {
-    path: '/user/profile-info',
-    name: 'userHealthInfo',
-    component: UserHealthInfoPage,
-  },
+  // {
+  //   path: '/userProfile-detail',
+  //   name: 'UserProfileSetting',
+  //   component: UserInfoSettingPage,
+  // },
+  // {
+  //   path: '/user/profile-info',
+  //   name: 'userHealthInfo',
+  //   component: UserHealthInfoPage,
+  // },
   {
     path: '/my-page',
     name: 'myPage',
@@ -63,6 +64,12 @@ const routes = [
   //   name: 'dashBoard',
   //   component: DashBoardPage,
   // },
+  {
+    // Vue Router 4에서는 '/:pathMatch(.*)*' 패턴이 권장됩니다.
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound, // 위에서 import 한 404 컴포넌트 연결
+  },
 ];
 
 const router = createRouter({
