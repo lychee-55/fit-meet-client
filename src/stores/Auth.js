@@ -1,292 +1,444 @@
-// /src/store/User.js
+// stores/Auth.js (Composition API - Setup Store)
+
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import router from '@/router';
-import { useUserStore } from './User';
+import { useUserStore } from './User'; // User Store는 그대로 참조
 
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    userInfo: {
-      nickname: '',
-      profileImageUrl: '',
-      email: '',
-    },
-    isLoggedIn: false,
-    loadingUser: true, // 앱 로딩 시 사용자 정보 불러오는 중
-  }),
+export const useAuthStore = defineStore('auth', () => {
+  // === STATE (상태) ===
+  // 💡 1. Axios 인스턴스 생성 및 기본 설정 유지
+  const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL,
+    withCredentials: true, // 쿠키(ACCESS_TOKEN, REFRESH_TOKEN) 포함 요청
+  });
 
-  actions: {
-    // 회원가입(/api/auth/signup)
-    async createUser(payload) {
-      try {
-        const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/auth/signup`,
-          payload,
-        );
+  // const isRefreshing = ref(false);
+  // let failedQueue = [];
 
-        return res.data;
-      } catch (err) {
-        // 서버 응답이 있는 경우 → 예외 던지기
-        if (err.response?.data) {
-          throw err.response.data; // ❗ 성공처럼 return하면 안 됨
-        }
+  const userInfo = ref({
+    nickname: '',
+    profileImageUrl: '',
+    email: '',
+  });
 
-        throw err; // 진짜 네트워크 에러
+  const isLoggedIn = ref(false);
+  const loadingUser = ref(true); // 앱 로딩 시 사용자 정보 불러오는 중
+  // 💡 Getter: 유저 정보가 로드되었는지 확인
+  const isAuthenticated = computed(() => isLoggedIn.value);
+  // 💡 Getter: 유저 닉네임을 쉽게 접근
+  const userNickname = computed(() => userInfo.value.nickname);
+  const authChecked = ref(false);
+  // === 리프레시 헬퍼 함수 ===
+  // const processQueue = (error, token = null) => {
+  //   failedQueue.forEach(prom => {
+  //     if (error) {
+  //       prom.reject(error);
+  //     } else {
+  //       prom.resolve(token);
+  //     }
+  //   });
+  //   failedQueue = [];
+  // };
+  // === ACTIONS (함수) ===
+
+  // 💡 용도: 회원가입 (/api/auth/signup)
+  async function createUser(payload) {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/signup`,
+        payload,
+      );
+      return res.data;
+    } catch (err) {
+      if (err.response?.data) {
+        throw err.response.data;
       }
-    },
+      throw err;
+    }
+  }
 
-    // 로그인(/api/auth/login)
-    async getLogin(payload) {
-      try {
-        const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/auth/login`,
-          payload,
-          { withCredentials: true },
-        );
+  // 💡 용도: 로그인 (/api/auth/login)
+  async function getLogin(payload) {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/login`,
+        payload,
+        { withCredentials: true },
+      );
 
-        if (res.data.code === 0) {
-          this.isLoggedIn = true;
-
-          // 로그인 후 사용자 정보 가져오기
-          await this.fetchBasicUserInfo();
-        }
-
-        return res.data;
-      } catch (err) {
-        if (err.response) {
-          return err.response?.data;
-        } else {
-          throw err.response?.data || err;
-        }
+      if (res.data.code === 0) {
+        isLoggedIn.value = true;
+        // 로그인 후 사용자 정보 가져오기
+        await fetchBasicUserInfo();
       }
-    },
-
-    // 이메일 중복 체크(/api/auth/email-info)
-    async checkEmail(email) {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/auth/email-info`,
-          { params: { email } },
-        );
-        return { available: true };
-      } catch (err) {
-        const msg = err.response?.data?.msg;
-        return { available: false, message: msg };
+      return res.data;
+    } catch (err) {
+      if (err.response) {
+        return err.response?.data;
+      } else {
+        throw err.response?.data || err;
       }
-    },
+    }
+  }
 
-    // 사용자 로그인 정보 조회 (/api/user/profile-info)
-    async fetchBasicUserInfo() {
-      this.loadingUser = true;
-      const userStore = useUserStore();
+  // 💡 용도: 이메일 중복 체크 (/api/auth/email-info)
+  async function checkEmail(email) {
+    try {
+      await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/email-info`, {
+        params: { email },
+      });
+      return { available: true };
+    } catch (err) {
+      const msg = err.response?.data?.msg;
+      return { available: false, message: msg };
+    }
+  }
 
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/user/profile-image`,
-          { withCredentials: true },
-        );
-        console.log('fetchBasicUserInfo res:: ', res);
+  // 💡 용도: 사용자 로그인 기본 정보 조회 (닉네임/프로필 사진) (/api/user/profile-image)
+  async function fetchBasicUserInfo() {
+    if (isLoggedIn.value === false && loadingUser.value === false) {
+      // 로그인 상태가 아닌데 굳이 복구 시도할 이유 없음
+      return false;
+    }
+    loadingUser.value = true;
 
-        if (res.data.code === 0) {
-          const userData = res.data.data;
-          this.userInfo = {
-            nickname: userData.nickname,
-            profileImageUrl: userData.profileImageUrl,
-            // email: userData.email,
-          };
-          console.log(this.userInfo);
-          this.isLoggedIn = true;
-          return true; // 성공
-        } else {
-          this.userInfo = null;
-          this.isLoggedIn = false;
-          return false; // 실패
-        }
-      } catch (err) {
-        this.userInfo = null;
-        this.isLoggedIn = false;
-        return false;
-      } finally {
-        this.loadingUser = false;
+    try {
+      // const res = await axios.get(
+      //   `${import.meta.env.VITE_API_URL}/api/user/profile-image`,
+      //   { withCredentials: true },
+      // );
+      const res = await api.get(`/api/user/profile-image`);
+      console.log('사용자 정보 조회::', res);
+      if (res.data.code === 0) {
+        const userData = res.data.data;
+        userInfo.value = {
+          nickname: userData.nickname,
+          profileImageUrl: userData.profileImageUrl,
+          // email: userData.email, // 이 API에서 email이 안 온다면 주석 유지
+        };
+        isLoggedIn.value = true;
+        return true;
       }
-    },
+      return false;
+    } catch (err) {
+      console.log(err.response);
+      // Access Token이 없거나 만료(401/1002)되면 인터셉터가 리프레시를 시도하며,
+      // 리프레시까지 실패(1005)하면 이 요청은 최종적으로 실패(reject)됨.
+      // 라우터 가드 로직을 위해 여기서 최종적으로 상태 초기화
+      // console.error('fetchBasicUserInfo 최종 실패:', err.response?.data || err);
+      // userInfo.value = {};
+      // isLoggedIn.value = false;
+      return false;
+    } finally {
+      authChecked.value = true;
+      loadingUser.value = false;
+    }
+  }
 
-    // 모든 정보 조회 (UserStore가 필요할 때 호출)
-    async fetchAllUserInfo() {
-      this.loadingUser = true;
-      const userStore = useUserStore(); // UserStore 참조
+  // 💡 2. 리프레시 함수: Access Token 재발급 및 사용자 정보 재조회 시도
+  async function refreshAccessToken() {
+    const res = await api.post('/api/auth/refresh');
 
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/user/profile-info`,
-          { withCredentials: true },
-        );
+    if (res.data.code !== 0) {
+      throw new Error('Refresh Failed');
+    }
+  }
 
-        if (res.data.code === 0) {
-          const userData = res.data.data;
+  // 💡 3. 인터셉터 설정 (아래에서 정의)
+  // setupInterceptors(api, refreshAccessTokenAndUserInfo);
 
-          // AuthStore 업데이트 (혹시 변경되었을 경우 대비)
-          this.userInfo = {
-            nickname: userData.nickname,
-            profileImageUrl: userData.profileImageUrl,
-            email: userData.email,
-          };
+  // 💡 용도: 모든 유저 정보 조회 (Auth 및 User Store 업데이트) (/api/user/profile-info)
+  async function fetchAllUserInfo() {
+    loadingUser.value = true;
+    const userStore = useUserStore(); // UserStore 참조
 
-          // UserStore에 신체 정보 저장
-          userStore.setHealthInfoFromFetch(userData);
-          this.isLoggedIn = true;
-          return true;
-        } else {
-          console.error(
-            'fetchAllUserInfo 실패: 서버 응답 코드 오류',
-            res.data.msg,
-          );
+    try {
+      // const res = await axios.get(
+      //   `${import.meta.env.VITE_API_URL}/api/user/profile-info`,
+      //   { withCredentials: true },
+      // );
+      const res = await api.get(`/api/user/profile-info`);
+      console.log('사용자 정보 조회::', res);
 
-          // 데이터 및 상태 초기화
-          this.userInfo = {}; // 빈 객체로 초기화
-          this.isLoggedIn = false;
-          userStore.setHealthInfoFromFetch({}); // UserStore 신체 정보도 초기화
+      if (res.data.code === 0) {
+        const userData = res.data.data;
 
-          return false; // 실패
-        }
-      } catch (err) {
-        console.error(
-          'fetchAllUserInfo API 호출 실패:',
-          err.response?.data || err,
-        );
-
-        // 데이터 및 상태 초기화
-        this.userInfo = {}; // 빈 객체로 초기화
-        this.isLoggedIn = false;
-        userStore.setHealthInfoFromFetch({}); // UserStore 신체 정보도 초기화
-
-        // 401 Unauthorized 또는 403 Forbidden과 같은 인증 오류인 경우
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          // 필요하다면 특정 오류 메시지 반환
-          // return { error: 'Unauthorized', message: '세션이 만료되었습니다.' };
-        }
-
-        return false; // 실패
-      } finally {
-        this.loadingUser = false;
+        // AuthStore 업데이트
+        userInfo.value = {
+          nickname: userData.nickname,
+          profileImageUrl: userData.profileImageUrl,
+          email: userData.email,
+        };
+        // UserStore에 신체 정보 저장
+        userStore.setHealthInfoFromFetch(userData);
+        isLoggedIn.value = true;
+        return true;
       }
-    },
+      return false;
+      // else {
+      //   console.error(
+      //     'fetchAllUserInfo 실패: 서버 응답 코드 오류',
+      //     res.data.msg,
+      //   );
+      //   userInfo.value = {};
+      //   isLoggedIn.value = false;
+      //   userStore.setHealthInfoFromFetch({});
+      //   return false;
+      // }
+    } catch (err) {
+      // console.error(
+      //   'fetchAllUserInfo API 호출 실패:',
+      //   err.response?.data || err,
+      // );
+      // userInfo.value = {};
+      // isLoggedIn.value = false;
+      // userStore.setHealthInfoFromFetch({});
+      return false;
+    } finally {
+      loadingUser.value = false;
+    }
+  }
 
-    //비밀번호 재설정하는 메일 전송 (/api/auth/password-reset/request)
-    async requestPasswordReset(email) {
-      try {
-        console.log(email);
-        const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/auth/password-reset/request`,
-          { email: email },
-          { withCredentials: true },
-        );
+  // 💡 용도: 비밀번호 재설정 메일 전송 (/api/auth/password-reset/request)
+  async function requestPasswordReset(email) {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/password-reset/request`,
+        { email: email },
+        { withCredentials: true },
+      );
 
-        if (res.status === 200) {
-          console.log('비밀번호 재설정 메일 요청 성공');
-
-          return {
-            success: true,
-            message:
-              '비밀번호 재설정 메일이 발송되었습니다. 메일함을 확인해주세요.',
-          };
-        }
-      } catch (err) {
-        console.error('비밀번호 재설정 요청 중 오류 발생:', err);
-
-        if (err.response) {
-          console.error('서버 응답 상태 코드:', err.response.status);
-          // 🚨 이 부분이 핵심: 서버가 400 응답 시 보낸 본문 내용을 확인
-          console.error(
-            '서버 응답 데이터 (400 오류 메시지):',
-            err.response.data,
-          );
-        }
-
-        throw {
-          status: err.response?.status || 'Network Error',
-          message: errorMessage,
+      if (res.status === 200) {
+        return {
+          success: true,
+          message:
+            '비밀번호 재설정 메일이 발송되었습니다. 메일함을 확인해주세요.',
         };
       }
-    },
+    } catch (err) {
+      console.error('비밀번호 재설정 요청 중 오류 발생:', err);
+      const errorMessage =
+        err.response?.data?.msg || '네트워크 오류로 메일 발송에 실패했습니다.';
 
-    //비밀번호 재설정 토큰 유효성검사 (/api/auth/password-reset/validate)
-    async validatePasswordReset(token) {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/auth/password-reset/validate`,
-          { params: { token: token } },
-          // { withCredentials: true },
-        );
-        console.log('token validate :: ', res);
-        return res;
-      } catch (err) {
-        return err.response.data;
+      throw {
+        status: err.response?.status || 'Network Error',
+        message: errorMessage,
+      };
+    }
+  }
+
+  // 💡 용도: 비밀번호 재설정 토큰 유효성 검사 (/api/auth/password-reset/validate)
+  async function validatePasswordReset(token) {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/auth/password-reset/validate`,
+        { params: { token: token } },
+      );
+      return res;
+    } catch (err) {
+      return err.response.data;
+    }
+  }
+
+  // 💡 용도: 비밀번호 재설정 완료 (/api/auth/password-reset/confirm)
+  async function confirmPasswordReset(payload) {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/password-reset/confirm`,
+        payload,
+        { withCredentials: true },
+      );
+      return res.data;
+    } catch (err) {
+      return err.response.data;
+    }
+  }
+
+  // 💡 용도: 로그아웃 (/api/auth/logout)
+  async function logout() {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+        {},
+        { withCredentials: true },
+      );
+      resetAuthState();
+      router.push({ name: 'login' });
+      // if (res.data.code === 0) {
+      //   userInfo.value = {};
+      //   isLoggedIn.value = false;
+      //   alert(res.data.msg);
+      //   router.push({ name: 'login' });
+      // }
+    } catch (err) {
+      console.log('로그아웃에 실패했습니다!');
+    }
+  }
+
+  // 💡 용도: 회원탈퇴 (/api/user/signout)
+  async function signout() {
+    const userStore = useUserStore();
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/user/signout`,
+        {},
+        { withCredentials: true },
+      );
+
+      if (res.data.code === 0) {
+        // userInfo.value = {};
+        // isLoggedIn.value = false;
+        userStore.setHealthInfoFromFetch({}); // User Store 초기화
+        resetAuthState();
+        alert(res.data.msg);
+        router.push({ name: 'login' });
       }
-    },
+    } catch (err) {
+      console.log('회원탈퇴에 실패했습니다!');
+    }
+  }
 
-    //비밀번호 재설정 (/api/auth/password-reset/confirm)
-    async confirmPasswordReset(payload) {
-      try {
-        const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/auth/password-reset/confirm`,
-          payload,
-          { withCredentials: true },
-        );
-        console.log('token confirm :: ', res);
-        return res.data;
-      } catch (err) {
-        return err.response.data;
-      }
-    },
+  function resetAuthState() {
+    userInfo.value = {};
+    isLoggedIn.value = false;
+  }
 
-    // 로그아웃
-    async logout() {
-      try {
-        const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/auth/logout`,
-          {},
-          {
-            withCredentials: true,
-          },
-        );
-        console.log('로그아웃이 됬나?::', res);
+  setupInterceptors(api, resetAuthState);
 
-        if (res.data.code === 0) {
-          this.userInfo = null;
-          this.isLoggedIn = false;
-          alert(res.data.msg);
-          router.push({ name: 'login' });
-        }
-      } catch (err) {
-        console.log(err);
-        console.log('로그아웃에 실패했습니다!');
-      }
-    },
-    // 회원탈퇴
-    async signout() {
-      const userStore = useUserStore();
-      try {
-        const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/user/signout`,
-          {},
-          {
-            withCredentials: true,
-          },
-        );
-        console.log('회원탈퇴 됬나?::', res);
+  return {
+    // State
+    userInfo,
+    isLoggedIn,
+    loadingUser,
 
-        if (res.data.code === 0) {
-          this.userInfo = {}; // 빈 객체로 초기화
-          this.isLoggedIn = false;
-          userStore.setHealthInfoFromFetch({});
-          alert(res.data.msg);
-          router.push({ name: 'login' });
-        }
-      } catch (err) {
-        console.log(err);
-        console.log('회원탈퇴에 실패했습니다!');
-      }
-    },
-  },
+    // Getters
+    isAuthenticated,
+    userNickname,
+    api,
+
+    // Actions
+    createUser,
+    getLogin,
+    checkEmail,
+    fetchBasicUserInfo,
+    fetchAllUserInfo,
+    requestPasswordReset,
+    validatePasswordReset,
+    confirmPasswordReset,
+    logout,
+    signout,
+    refreshAccessToken,
+    resetAuthState,
+    // refreshAccessTokenAndUserInfo,
+  };
 });
+function setupInterceptors(apiInstance, resetAuthState) {
+  apiInstance.interceptors.response.use(
+    res => res,
+    async error => {
+      const originalRequest = error.config;
+
+      if (
+        (error.response?.status === 401 || error.response?.status === 403) &&
+        !originalRequest._retry &&
+        !originalRequest.url.includes('/api/auth/refresh') &&
+        !originalRequest.url.includes('/api/auth/login') &&
+        !originalRequest.url.includes('/api/auth/signup') &&
+        !originalRequest.url.includes('/api/auth/password-reset')
+      ) {
+        originalRequest._retry = true;
+
+        try {
+          // 🔥 refresh 실행
+          console.log('try');
+          await apiInstance.post('/api/auth/refresh');
+
+          // 🔁 원래 요청 재시도
+          return apiInstance(originalRequest);
+        } catch (refreshError) {
+          resetAuthState();
+          router.push({ name: 'login' });
+          return Promise.reject(refreshError);
+        }
+      }
+
+      return Promise.reject(error);
+    },
+  );
+}
+// function setupInterceptors(apiInstance, resetAuthState) {
+//   apiInstance.interceptors.response.use(
+//     res => res,
+//     async error => {
+//       const originalRequest = error.config;
+//       const errorCode = error.response?.data?.code;
+
+//       // 🔥 Access Token 만료
+//       if (
+//         (error.response?.status === 403 || error.response?.status === 401) &&
+//         // errorCode === 1002 &&
+//         !originalRequest._retry
+//       ) {
+//         originalRequest._retry = true;
+
+//         try {
+//           await refreshAccessToken();
+
+//           return apiInstance(originalRequest);
+//         } catch (e) {
+//           resetAuthState();
+//           return Promise.reject(e);
+//         }
+//       }
+
+//       // 🔥 Refresh Token 만료
+//       if (errorCode === 1005) {
+//         resetAuthState();
+//       }
+
+//       return Promise.reject(error);
+//     },
+//   );
+// }
+// 💡 4. 인터셉터 로직 분리 및 에러 코드 기반 처리
+// function setupInterceptors(apiInstance, refreshCallback) {
+//   apiInstance.interceptors.response.use(
+//     response => response,
+//     async error => {
+//       const authStore = useAuthStore();
+//       const originalRequest = error.config;
+//       const errorCode = error.response?.data?.code; // 커스텀 에러 코드 추출
+
+//       // Access Token 만료 코드(1002) & 재시도 아님 & 401 에러일 때
+//       if (
+//         error.response?.status === 401 &&
+//         errorCode === 1002 &&
+//         !originalRequest._isRetry
+//       ) {
+//         originalRequest._isRetry = true;
+
+//         try {
+//           // 리프레시 시도 (성공하면 새로운 Access Token 쿠키로 설정됨)
+//           await refreshCallback();
+//           // 원본 요청 재시도
+//           return apiInstance(originalRequest);
+//         } catch (refreshError) {
+//           // 리프레시 실패 (Refresh Token 만료 등):
+//           // 이 시점에서 authStore.isLoggedIn은 이미 false로 설정됨
+//           return Promise.reject(error); // 최종 실패 에러 전파
+//         }
+//       }
+
+//       // Refresh Token 만료 코드(1005) 등 다른 인증 오류 발생 시 (혹은 refreshCallback에서 에러 발생 시)
+//       // 상태를 강제로 로그아웃 처리하고 에러 전파
+//       if (errorCode === 1005) {
+//         authStore.isLoggedIn = false;
+//         authStore.userInfo = {};
+//       }
+
+//       return Promise.reject(error);
+//     },
+//   );
+// }

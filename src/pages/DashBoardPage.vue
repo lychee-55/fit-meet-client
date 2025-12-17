@@ -1,4 +1,92 @@
-// Dashboard.vue (예시)
+<template>
+  <div class="min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+      <AlertFillBodyInfo v-if="userStore.isHealthInfoMissing" class="mb-6" />
+
+      <div class="grid grid-cols-1 lg:grid-cols-10 gap-6 lg:items-start">
+        <div class="lg:col-span-7 grid grid-cols-1 gap-6">
+          <TodayNutritions class="h-48" />
+
+          <TotalScores class="h-[28rem]" />
+
+          <DietCalender />
+        </div>
+
+        <div class="lg:col-span-3 grid grid-cols-1 gap-6">
+          <AiAnalysisCard class="h-48" />
+
+          <MyStreak class="h-[28rem]" />
+        </div>
+      </div>
+
+      <!-- <WriteDietBoardBtn /> -->
+      <button
+        @click="isOptionModalVisible = true"
+        class="fixed bottom-10 right-10 w-16 h-16 rounded-full bg-[#8A8F6E] text-white shadow-xl hover:bg-[#6e7256] transition z-40"
+      >
+        <PlusIcon class="w-8 h-8 mx-auto" />
+      </button>
+      <CreateDietFormOptionModal
+        :is-visible="isOptionModalVisible"
+        @update:isVisible="isOptionModalVisible = $event"
+        @selectOption="handleSelectOption"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import AiAnalysisCard from '@/components/dashboard/AiAnalysisCard.vue';
+import AlertFillBodyInfo from '@/components/dashboard/AlertFillBodyInfo.vue';
+import DietCalender from '@/components/dashboard/calender/DietCalender.vue';
+import MyStreak from '@/components/dashboard/MyStreak.vue';
+import TodayNutritions from '@/components/dashboard/nutrition/TodayNutritions.vue';
+import TotalScores from '@/components/dashboard/score/TotalScores.vue';
+import CreateDietFormOptionModal from '@/components/diet/CreateDietFormOptionModal.vue';
+import { useModalStore } from '@/stores/modal';
+import { PlusIcon } from '@heroicons/vue/24/outline';
+import { useUserStore } from '@/stores/User';
+import { ref, reactive, computed } from 'vue';
+import { useRouter } from 'vue-router'; // useRouter 임포트 필요
+
+const router = useRouter(); // router 인스턴스 생성
+
+const modalStore = useModalStore();
+const userStore = useUserStore();
+const isOptionModalVisible = ref(false);
+
+// 모달에서 'saved' 이벤트 발생 시 처리 로직
+const handleModalSaved = () => {
+  // 식단 등록/수정 성공 시 달력 또는 목록을 새로고침하는 로직을 여기에 추가
+  console.log('식단이 저장되었습니다. 데이터를 새로고침합니다.');
+  // 예: dietStore.fetchDietForDay(selectedDate);
+};
+
+const handleSelectOption = option => {
+  let methodParam;
+
+  if (option === 'manual') {
+    // URL: /diet/create-diet/manual
+    methodParam = 'manual';
+  } else if (option === 'public-api') {
+    // URL: /diet/create-diet/public-api
+    methodParam = 'public-api';
+  } else {
+    // 옵션이 유효하지 않으면 종료
+    return;
+  }
+
+  // 💡 라우팅 실행: name과 params를 사용하여 이동
+  router.push({
+    name: 'createDiet', // 라우터에 정의한 이름
+    params: {
+      method: methodParam, // URL에 들어갈 값 (manual 또는 public-api)
+    },
+  });
+};
+</script>
+
+<!-- // Dashboard.vue (예시)
 
 <template>
   <div>
@@ -54,4 +142,4 @@ onMounted(async () => {
     await authStore.fetchAllUserInfo();
   }
 });
-</script>
+</script> -->

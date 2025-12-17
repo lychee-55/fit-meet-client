@@ -15,8 +15,8 @@
           :disabled="isLoading"
           class="px-4 py-3 text-white rounded-xl bg-[#D3A373] transition shadow flex items-center justify-center"
           :class="{
-            'hover:bg-[#b9885f]': !isLoading,
-            'bg-[#b9885f] cursor-not-allowed': isLoading,
+            'hover:': !isLoading,
+            'orange-bg-color cursor-not-allowed': isLoading,
           }"
         >
           <span v-if="isLoading" class="flex items-center">

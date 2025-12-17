@@ -4,7 +4,8 @@
 
     <div class="flex flex-col items-center gap-4 mb-8">
       <img
-        :src="currentPreviewUrl || currentProfileImage"
+        :src="imageSrc"
+        @error="onImageError"
         alt="프로필 미리보기"
         class="w-32 h-32 rounded-full object-cover border-4 border-[#D3A373] shadow-md transition-all duration-300"
       />
@@ -38,14 +39,14 @@
         v-if="fileToUpload && isEditMode"
         type="button"
         @click="$emit('upload-image')"
-        class="w-48 py-2 mt-2 text-white text-sm font-semibold rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow"
+        class="w-48 py-2 mt-2 text-white text-sm font-semibold rounded-xl orange-bg-color hover:orange-bg-color transition shadow"
       >
         프로필 사진 저장
       </button>
     </div>
 
     <div class="flex flex-col gap-3">
-      <label class="text-base font-semibold text-[#8A8F6E]">닉네임</label>
+      <label class="text-base font-medium text-gray-700">닉네임</label>
       <input
         type="text"
         :value="nickname"
@@ -56,8 +57,8 @@
       />
     </div>
 
-    <div class="flex flex-col mt-4">
-      <label class="text-base font-semibold text-[#8A8F6E]">이메일</label>
+    <div class="flex flex-col mt-4 gap-3">
+      <label class="text-base font-medium text-gray-700">이메일</label>
       <input
         type="email"
         :value="authStore.userInfo?.email"
@@ -81,6 +82,7 @@ const props = defineProps({
   fileToUpload: [File, null],
   currentPreviewUrl: [String, null],
   currentProfileImage: String,
+  fallbackImage: String,
 });
 
 const emit = defineEmits([
@@ -89,6 +91,19 @@ const emit = defineEmits([
   'delete-image',
   'upload-image',
 ]);
+
+const imageSrc = computed(() => {
+  return (
+    props.currentPreviewUrl || props.currentProfileImage || props.fallbackImage
+  );
+});
+
+function onImageError(e) {
+  const target = e.target;
+  if (target.src !== props.fallbackImage) {
+    target.src = props.fallbackImage;
+  }
+}
 
 const nicknameInputClasses = computed(() => {
   const base =

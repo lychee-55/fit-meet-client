@@ -48,7 +48,7 @@
           v-if="fileToUpload"
           type="button"
           @click="uploadProfileImage"
-          class="w-full py-3 mt-4 text-white text-base font-semibold rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow"
+          class="w-full py-3 mt-4 text-white text-base font-semibold rounded-xl bg-[#D3A373] hover:orange-bg-color transition shadow"
         >
           선택된 프로필 사진 저장
         </button>
@@ -79,7 +79,7 @@
           <button
             type="button"
             @click="updateNickname"
-            class="px-4 py-3 text-white rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow whitespace-nowrap"
+            class="px-4 py-3 text-white rounded-xl bg-[#D3A373] hover:orange-bg-color transition shadow whitespace-nowrap"
           >
             저장
           </button>

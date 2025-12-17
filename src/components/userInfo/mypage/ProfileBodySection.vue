@@ -148,7 +148,7 @@ const genderButtonClasses = computed(() => gender => {
   if (isSelected) {
     return [
       base,
-      'bg-[#D3A373] text-white border-[#D3A373] hover:bg-[#b9885f]',
+      'bg-[#D3A373] text-white border-[#D3A373] hover:orange-bg-color',
     ];
   } else {
     return [base, 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'];

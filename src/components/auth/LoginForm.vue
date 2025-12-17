@@ -34,7 +34,7 @@
     <!-- 버튼과 인풋 사이 간격 크게 -->
     <button
       type="submit"
-      class="w-full py-3 text-white text-lg font-semibold rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow"
+      class="w-full py-3 text-white text-lg font-semibold rounded-xl orange-bg-color hover:orange-bg-color transition shadow"
     >
       로그인
     </button>
@@ -86,8 +86,8 @@ const submitLogin = async () => {
     console.log('로그인 콘솔::', res);
     if (res.code === 0) {
       alert('로그인 성공!');
-      router.push('/');
-      // router.push({ name: 'dashBoard' });
+      // router.push('/');
+      router.push({ name: 'dashBoard' });
     } else {
       if (res.code === 2001) {
         emailMsg.value = res.msg;

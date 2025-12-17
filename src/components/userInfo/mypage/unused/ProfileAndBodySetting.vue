@@ -40,7 +40,7 @@
             v-if="fileToUpload && isEditMode"
             type="button"
             @click="uploadProfileImage"
-            class="w-48 py-2 mt-2 text-white text-sm font-semibold rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow"
+            class="w-48 py-2 mt-2 text-white text-sm font-semibold rounded-xl orange-bg-color hover:orange-bg-color transition shadow"
           >
             프로필 사진 저장
           </button>
@@ -243,7 +243,7 @@
           <button
             type="submit"
             :disabled="userStore.loading"
-            class="flex-1 py-4 mt-4 text-white text-base font-bold rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow-lg disabled:bg-gray-400"
+            class="flex-1 py-4 mt-4 text-white text-base font-bold rounded-xl bg-[#D3A373] hover:orange-bg-color transition shadow-lg disabled:bg-gray-400"
           >
             {{ userStore.loading ? '저장 중...' : '수정 완료' }}
           </button>

@@ -50,7 +50,7 @@
         <button
           type="button"
           @click="checkEmail"
-          class="px-4 py-3 text-white rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow"
+          class="px-4 py-3 text-sm text-white rounded-xl orange-bg-color hover:orange-bg-color transition shadow"
         >
           중복확인
         </button>
@@ -153,7 +153,7 @@
 
     <button
       type="submit"
-      class="w-full py-3 mt-2 text-white text-lg font-semibold rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow"
+      class="w-full py-3 mt-2 text-white text-lg font-semibold rounded-xl orange-bg-color hover:orange-bg-color transition shadow"
     >
       회원가입
     </button>

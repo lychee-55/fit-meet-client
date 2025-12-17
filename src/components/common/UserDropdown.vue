@@ -22,6 +22,7 @@
       <div class="flex items-center gap-3 px-4 py-2 mb-2">
         <img
           :src="store.userInfo?.profileImageUrl || profileImg"
+          @error="e => (e.target.src = profileImg)"
           class="w-10 h-10 rounded-full border border-[#D3A373] object-cover"
         />
         <div class="font-semibold text-sm truncate">

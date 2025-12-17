@@ -1,47 +1,209 @@
 @import 'tailwindcss';
 
 .bg-blur-container {
-  /* 기존 스타일 유지 */
   @apply relative overflow-hidden min-h-screen;
-  /* @apply relative min-h-screen; */
 }
 
-/* 🟢 왼쪽 하단 - 녹색 블러 (::before) */
-.bg-blur-container::before {
+/* 4개의 블러 레이어 스타일 */
+.blur-layer {
   content: '';
-  position: absolute;
-  /* ... 나머지 블러 스타일 유지 ... */
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%; /* 기본값으로 원형 설정 */
+}
+
+/* 🟢 왼쪽 상단 (Small, Green, Circle) */
+.blur-top-left {
   background: radial-gradient(
     circle at center,
     rgba(0, 255, 0, 0.4),
     rgba(0, 255, 0, 0) 70%
   );
-  filter: blur(120px);
-  z-index: -1;
-  pointer-events: none;
-  bottom: -150px;
+  filter: blur(150px);
+  top: -150px;
   left: -150px;
-  width: 800px;
-  height: 600px;
-  border-radius: 30%;
+  width: 400px;
+  opacity: 0.5;
+  height: 400px;
 }
 
-/* 🟠 오른쪽 상단 - 주황색 블러 (::after) */
-.bg-blur-container::after {
-  content: '';
-  position: absolute;
-  /* ... 나머지 블러 스타일 유지 ... */
+/* 🟠 오른쪽 상단 (Large, Orange, Rectangular) */
+.blur-top-right {
   background: radial-gradient(
     circle at center,
     rgba(255, 165, 0, 0.4),
     rgba(255, 165, 0, 0) 70%
   );
-  filter: blur(150px);
-  z-index: -1;
-  pointer-events: none;
+  filter: blur(120px);
   top: -150px;
   right: -150px;
+  width: 800px;
+  opacity: 0.5;
+  height: 600px;
+  border-radius: 30%; /* 직사각형 모양 유지 */
+}
+
+/* 🟠 왼쪽 하단 (Large, Orange, Rectangular) */
+.blur-bottom-left {
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 165, 0, 0.4),
+    rgba(255, 165, 0, 0) 70%
+  );
+  filter: blur(120px);
+  bottom: -150px;
+  left: -150px;
+  width: 800px;
+  height: 600px;
+  opacity: 0.5;
+  border-radius: 30%; /* 직사각형 모양 유지 */
+}
+
+/* 🟢 오른쪽 하단 (Small, Green, Circle) */
+.blur-bottom-right {
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 0, 0.4),
+    rgba(0, 255, 0, 0) 70%
+  );
+  filter: blur(150px);
+  bottom: -150px;
+  right: -150px;
+  opacity: 0.5;
   width: 400px;
   height: 400px;
-  border-radius: 50%;
+}
+
+.green-bg-color {
+  background-color: #79ae70;
+}
+.green-bg-color:hover {
+  background-color: #629659;
+}
+.lightgreen-bg-color {
+  background-color: #f2fde7;
+}
+.lightgreen-hover:hover {
+  background-color: #e9fbd6;
+}
+.orange-bg-color {
+  background-color: #e7b37c;
+}
+.orange-bg-color:hover {
+  background-color: #dda568;
+}
+.lightorange-bg-color {
+  background-color: #fdf2e7;
+}
+.lightorange-hover:hover {
+  background-color: #fbecd6;
+}
+
+@layer base {
+  :root {
+    /* kcal */
+    --color-kcal: #facc15; /* yellow-500 계열 */
+    --color-kcal-light: #fdf2e7;
+
+    /* 탄수화물 */
+    --color-carb: #79ae70;
+    --color-carb-light: #f2fde7;
+
+    /* 단백질 */
+    --color-protein: #818cf8; /* indigo-400 */
+    --color-protein-light: #e0e7ff;
+
+    /* 지방 */
+    --color-fat: #e7b37c;
+    --color-fat-light: #fdf2e7;
+
+    /* 브랜드 컬러 */
+    --color-brand: #8a8f6e;
+  }
+}
+
+@layer utilities {
+  /* background */
+  .bg-kcal {
+    background-color: var(--color-kcal);
+  }
+  .bg-kcal-light {
+    background-color: var(--color-kcal-light);
+  }
+
+  .bg-carb {
+    background-color: var(--color-carb);
+  }
+  .bg-carb-light {
+    background-color: var(--color-carb-light);
+  }
+
+  .bg-protein {
+    background-color: var(--color-protein);
+  }
+  .bg-protein-light {
+    background-color: var(--color-protein-light);
+  }
+
+  .bg-fat {
+    background-color: var(--color-fat);
+  }
+  .bg-fat-light {
+    background-color: var(--color-fat-light);
+  }
+
+  /* text */
+  .text-kcal {
+    color: var(--color-kcal);
+  }
+  .text-carb {
+    color: var(--color-carb);
+  }
+  .text-protein {
+    color: var(--color-protein);
+  }
+  .text-fat {
+    color: var(--color-fat);
+  }
+
+  .text-brand {
+    color: var(--color-brand);
+  }
+  .border-brand {
+    border-color: var(--color-brand);
+  }
+}
+
+/* Tailwind 클래스를 대체하는 사용자 정의 CSS */
+.input-style {
+  /* 기본 스타일 */
+  width: 100%;
+  padding: 0.75rem; /* p-3 */
+  border-width: 1px; /* border */
+  border-color: #d1d5db; /* border-gray-300 */
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  color: #374151; /* text-gray-700 */
+
+  /* 전환 효과 */
+  transition: border-color 0.2s, box-shadow 0.2s; /* transition */
+}
+
+/* 포커스 시 스타일 (focus:ring-2 focus:ring-[#8A8F6E] focus:border-[#8A8F6E]) */
+.input-style:focus {
+  outline: none; /* 기본 브라우저 포커스 아웃라인 제거 */
+
+  /* focus:border-[#8A8F6E] */
+  border-color: #8a8f6e;
+
+  /* focus:ring-2 focus:ring-[#8A8F6E] 효과 모방 */
+  box-shadow: 0 0 0 2px #8a8f6e, 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* (링(shadow)과 원래 그림자(shadow-sm)를 합친 형태) */
+}
+
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(43%) sepia(10%) saturate(1610%) hue-rotate(69deg)
+    brightness(84%) contrast(85%); /* 색상 조정 */
 }

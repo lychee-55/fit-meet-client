@@ -33,8 +33,8 @@
       :disabled="isLoading"
       class="w-full py-3 mt-2 text-white text-lg font-semibold rounded-xl bg-[#D3A373] transition shadow"
       :class="{
-        'hover:bg-[#b9885f]': !isLoading,
-        'bg-[#b9885f] cursor-not-allowed': isLoading,
+        'orange-bg-color': !isLoading,
+        'orange-bg-color cursor-not-allowed': isLoading,
       }"
     >
       <span v-if="isLoading" class="flex items-center justify-center">

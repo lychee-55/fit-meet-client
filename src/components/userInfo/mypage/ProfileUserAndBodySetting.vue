@@ -7,6 +7,7 @@
         :file-to-upload="fileToUpload"
         :current-preview-url="currentPreviewUrl"
         :current-profile-image="currentProfileImage"
+        :fallback-image="profileImg"
         @file-change="handleFileChange"
         @delete-image="deleteImage"
         @upload-image="uploadProfileImage"
@@ -35,7 +36,7 @@
           <button
             type="submit"
             :disabled="userStore.loading"
-            class="flex-1 py-4 mt-4 text-white text-base font-bold rounded-xl bg-[#D3A373] hover:bg-[#b9885f] transition shadow-lg disabled:bg-gray-400"
+            class="flex-1 py-4 mt-4 text-white text-base font-bold rounded-xl orange-bg-color hover:orange-bg-color transition shadow-lg disabled:bg-gray-400"
           >
             {{ userStore.loading ? '저장 중...' : '수정 완료' }}
           </button>
@@ -76,7 +77,7 @@ const isEditMode = ref(false);
 const fileToUpload = ref(null);
 const currentPreviewUrl = ref(null);
 const currentProfileImage = computed(
-  () => authStore.userInfo?.profileImageUrl || defaultProfileImg,
+  () => authStore.userInfo?.profileImageUrl || null,
 );
 
 // 폼 메시지
