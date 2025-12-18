@@ -1,58 +1,125 @@
 <template>
   <div
-    v-if="isOpen"
-    class="fixed inset-0 flex items-center justify-center z-50 p-4"
+    v-if="isVisible"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
   >
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
-      <div class="p-5 border-b flex justify-between items-center">
-        <h3 class="text-xl font-bold text-gray-800">
-          {{ dietData.date }} {{ dietData.time }} 식단 상세
-        </h3>
-        <button @click="close" class="text-gray-500 hover:text-gray-700">
-          &times;
+    <div
+      class="bg-[#f9f9f5] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+    >
+      <div class="p-5 border-b bg-white flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-bold text-[#8A8F6E]">
+            {{ mealLabel }} 상세 정보
+          </h2>
+          <p class="text-sm text-gray-500">{{ formattedDate }}</p>
+        </div>
+        <button
+          @click="$emit('close')"
+          class="p-2 hover:bg-gray-100 rounded-full transition"
+        >
+          <XMarkIcon class="w-6 h-6 text-gray-400" />
         </button>
       </div>
 
-      <div class="p-5 space-y-4">
-        <div class="flex justify-between border-b pb-2">
-          <span class="text-sm font-medium text-gray-600">총 칼로리</span>
-          <span class="text-lg font-bold text-red-600"
-            >{{ dietData.calories }} kcal</span
-          >
+      <div class="p-6 overflow-y-auto space-y-6">
+        <div
+          v-if="diet.imageUrl"
+          class="w-full h-48 rounded-xl overflow-hidden shadow-inner"
+        >
+          <img
+            :src="diet.imageUrl"
+            class="w-full h-full object-cover"
+            alt="식단 이미지"
+          />
         </div>
-        <div class="flex justify-between border-b pb-2">
-          <span class="text-sm font-medium text-gray-600">식단 점수</span>
-          <span class="text-lg font-bold text-blue-600"
-            >{{ dietData.score }}점</span
+
+        <div
+          class="p-4 bg-white rounded-xl shadow-sm border border-[#8A8F6E]/20"
+        >
+          <div class="flex items-end justify-between mb-4">
+            <span class="font-bold text-gray-700">📊 영양소 밸런스</span>
+            <span class="text-2xl font-black text-red-500"
+              >{{ totalNutrition.kcal }}
+              <small class="text-sm font-normal text-gray-500"
+                >kcal</small
+              ></span
+            >
+          </div>
+
+          <div
+            class="w-full h-4 flex rounded-full overflow-hidden bg-gray-100 mb-4"
           >
+            <div
+              :style="{ width: `${macroRatios.carbohydrate}%` }"
+              class="bg-blue-400"
+            ></div>
+            <div
+              :style="{ width: `${macroRatios.protein}%` }"
+              class="bg-green-400"
+            ></div>
+            <div
+              :style="{ width: `${macroRatios.fat}%` }"
+              class="bg-orange-400"
+            ></div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="p-2 bg-blue-50 rounded-lg">
+              <p class="text-blue-600 font-bold">
+                {{ totalNutrition.carbohydrate }}g
+              </p>
+              <p class="text-gray-500">탄수화물</p>
+            </div>
+            <div class="p-2 bg-green-50 rounded-lg">
+              <p class="text-green-600 font-bold">
+                {{ totalNutrition.protein }}g
+              </p>
+              <p class="text-gray-500">단백질</p>
+            </div>
+            <div class="p-2 bg-orange-50 rounded-lg">
+              <p class="text-orange-600 font-bold">{{ totalNutrition.fat }}g</p>
+              <p class="text-gray-500">지방</p>
+            </div>
+          </div>
         </div>
 
         <div>
-          <h4 class="font-semibold mb-2">섭취 내역</h4>
-          <ul class="text-sm list-disc pl-5 space-y-1 text-gray-700">
-            <li>밥 (200g): 270kcal</li>
-            <li>닭가슴살 (100g): 165kcal</li>
-            <li>김치 (50g): 15kcal</li>
-          </ul>
+          <h3 class="font-bold text-gray-700 mb-3 ml-1">🍽 포함된 음식</h3>
+          <div class="space-y-2">
+            <div
+              v-for="food in diet.foods"
+              :key="food.id"
+              class="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-100"
+            >
+              <div>
+                <p class="font-medium text-gray-800">{{ food.foodNmKr }}</p>
+                <p class="text-xs text-gray-400">{{ food.intakeGram }}g</p>
+              </div>
+              <p class="text-sm font-bold text-[#8A8F6E]">
+                {{ food.kcal }} kcal
+              </p>
+            </div>
+          </div>
         </div>
 
-        <p class="text-sm mt-3 text-gray-600">
-          비고: {{ dietData.notes || '특이사항 없음' }}
-        </p>
+        <div
+          v-if="diet.description"
+          class="p-4 bg-gray-50 rounded-lg italic text-gray-600 text-sm"
+        >
+          " {{ diet.description }} "
+        </div>
       </div>
 
-      <div class="p-5 border-t flex justify-end gap-3">
+      <div class="p-4 bg-white border-t flex gap-2">
         <button
-          @click="handleEdit"
-          class="bg-yellow-500 text-white py-2 px-4 rounded-md text-sm hover:bg-yellow-600 transition"
-        >
-          수정
-        </button>
-        <button
-          @click="handleDelete"
-          class="bg-red-600 text-white py-2 px-4 rounded-md text-sm hover:bg-red-700 transition"
+          class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition"
         >
           삭제
+        </button>
+        <button
+          class="flex-1 py-3 rounded-xl bg-[#8A8F6E] text-white font-bold hover:bg-[#6e7256] transition"
+        >
+          수정하기
         </button>
       </div>
     </div>
@@ -60,64 +127,50 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, defineProps, defineEmits } from 'vue';
-import axios from 'axios'; // API 사용 가정
+import { computed } from 'vue';
+import { XMarkIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
-  dietId: [Number, String],
+  isVisible: Boolean,
+  diet: Object,
+  mealLabel: String,
 });
-const emit = defineEmits(['close', 'edit', 'deleted']);
 
-const isOpen = computed(() => !!props.dietId);
-const dietData = ref({ date: '', time: '', calories: 0, score: 0, notes: '' }); // 임시 데이터 구조
+defineEmits(['close']);
 
-watch(
-  () => props.dietId,
-  newId => {
-    if (newId) {
-      fetchDietDetails(newId);
-    }
-  },
-  { immediate: true },
-);
-
-// 💡 API: GET /api/diets/{dietId} 사용
-const fetchDietDetails = async id => {
-  // 실제 API 호출 로직
-  // const response = await axios.get(`/api/diets/${id}`);
-  // dietData.value = response.data;
-
-  // 임시 데이터 채우기
-  dietData.value = {
-    id: id,
-    date: '2025년 12월 14일',
-    time: '저녁',
-    calories: 620,
-    score: 88,
-    notes: '운동 후 단백질 위주로 섭취했음.',
-  };
-};
-
-const close = () => {
-  emit('close');
-};
-
-const handleEdit = () => {
-  // 식단 등록/수정 모달로 넘기기 위해 현재 데이터를 emit
-  emit('edit', dietData.value);
-};
-
-// 💡 API: DELETE /api/diets/{dietId} 사용
-const handleDelete = async () => {
-  if (confirm('정말로 이 식단을 삭제하시겠습니까?')) {
-    try {
-      // await axios.delete(`/api/diets/${props.dietId}`);
-      alert('삭제되었습니다.');
-      emit('deleted');
-      close();
-    } catch (error) {
-      alert('삭제에 실패했습니다.');
-    }
+// 합산 로직 (받아온 diet 객체 내부의 foods 기준)
+const totalNutrition = computed(() => {
+  const totals = { kcal: 0, carbohydrate: 0, protein: 0, fat: 0 };
+  if (props.diet?.foods) {
+    props.diet.foods.forEach(f => {
+      totals.kcal += Number(f.kcal || 0);
+      totals.carbohydrate += Number(f.carbohydrate || 0);
+      totals.protein += Number(f.protein || 0);
+      totals.fat += Number(f.fat || 0);
+    });
   }
-};
+  return totals;
+});
+
+// 비율 계산 로직
+const macroRatios = computed(() => {
+  const { carbohydrate: c, protein: p, fat: f } = totalNutrition.value;
+  const total = c * 4 + p * 4 + f * 9;
+  if (total === 0) return { carbohydrate: 0, protein: 0, fat: 0 };
+  return {
+    carbohydrate: ((c * 4) / total) * 100,
+    protein: ((p * 4) / total) * 100,
+    fat: ((f * 9) / total) * 100,
+  };
+});
+
+const formattedDate = computed(() => {
+  if (!props.diet?.date) return '';
+  return new Date(props.diet.date).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+  });
+});
 </script>

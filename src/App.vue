@@ -4,10 +4,10 @@ import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/Auth';
 import { useModalStore } from '@/stores/modal';
 import MobileSidebar from './components/common/MobileSidebar.vue';
-import DietWriteModal from './components/diet/DietWriteModal.vue';
+// import DietWriteModal from './components/diet/DietWriteModal.vue';
 import { useRouter } from 'vue-router';
 
-const modalStore = useModalStore();
+// const modalStore = useModalStore();
 const store = useAuthStore();
 const router = useRouter();
 
@@ -35,6 +35,7 @@ onMounted(async () => {
 
 <template>
   <div class="bg-blur-container">
+    <!-- <div> -->
     <AppHeader />
     <router-view />
   </div>
@@ -46,13 +47,13 @@ onMounted(async () => {
     <div class="blur-layer blur-bottom-right"></div>
   </teleport>
 
-  <DietWriteModal
+  <!-- <DietWriteModal
     v-if="modalStore.isWriteModalOpen"
     :initial-data="modalStore.writeModalInitialData"
     @close="closeModalAndRefresh"
     @saved="handleDietSaved"
     @deleted="handleDietSaved"
-  />
+  /> -->
 
   <MobileSidebar />
 </template>

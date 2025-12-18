@@ -1,7 +1,7 @@
 // src/stores/diet.js (Pinia Setup Store - Composition API Style)
 
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import axios from 'axios';
 
 const BASE_URL = `${import.meta.env.VITE_API_URL}/api/diets`;
@@ -9,16 +9,12 @@ const BASE_URL = `${import.meta.env.VITE_API_URL}/api/diets`;
 export const useDietStore = defineStore('diet', () => {
   // === STATE (상태) ===
   const dietList = ref([]); // 전체 식단 리스트
-  const dailyDietMap = ref({}); // 일간 식단 데이터. key: 'YYYY-MM-DD', value: [식단 객체 배열]
+  const dailyDietMap = ref({}); // reactive({}) 대신 ref({}) 사용
+  // const dailyDietMap = reactive({}); // 일간 식단 데이터. key: 'YYYY-MM-DD', value: [식단 객체 배열]
   const isLoading = ref(false); // 로딩 상태
   const error = ref(null); // 에러 메시지
 
   // === GETTERS (계산된 상태) ===
-
-  // 특정 날짜의 식단 목록을 가져오는 Getter
-  const getDietByDate = computed(() => dateString => {
-    return dailyDietMap.value[dateString] || [];
-  });
 
   // 주간 평균 칼로리 등을 계산하는 Getter (로직 더미)
   const getWeeklyAverageCalories = computed(() => {
@@ -62,34 +58,79 @@ export const useDietStore = defineStore('diet', () => {
    * 특정 날짜의 식단 정보를 서버에서 가져와 dailyDietMap에 저장
    */
   async function fetchDietForDay(dateString) {
-    // 캐싱 로직
-    if (
-      dailyDietMap.value[dateString] &&
-      dailyDietMap.value[dateString].length > 0
-    ) {
-      return;
-    }
+    // 캐싱: 이미 데이터가 있으면 요청 안함 (필요시 주석 해제)
+    // if (dailyDietMap.value[dateString]) return;
 
     isLoading.value = true;
-    error.value = null;
     try {
       const response = await axios.get(`${BASE_URL}/day?date=${dateString}`, {
         withCredentials: true,
       });
 
-      // dailyDietMap 업데이트
+      // 🔥 핵심: 새로운 객체 레퍼런스를 할당하여 반응성을 강제로 트리거합니다.
       dailyDietMap.value = {
         ...dailyDietMap.value,
-        [dateString]: response.data.diets || [],
+        [dateString]: response.data.data || [],
       };
+
+      console.log(
+        'Store 저장 완료:',
+        dateString,
+        dailyDietMap.value[dateString],
+      );
     } catch (err) {
-      error.value = `일간 식단 정보를 가져오는 데 실패했습니다: ${dateString}`;
+      console.error('스토어 조회 실패', err);
       dailyDietMap.value[dateString] = [];
-      console.error('스토어: 일간 식단 조회 실패', err);
     } finally {
       isLoading.value = false;
     }
   }
+
+  // Getter 역할을 하는 함수
+  const getDietByDate = dateString => {
+    return dailyDietMap.value[dateString] || [];
+  };
+  // async function fetchDietForDay(dateString) {
+  //   // 캐싱 로직
+  //   if (dailyDietMap[dateString] && dailyDietMap[dateString].length > 0) {
+  //     return;
+  //   }
+
+  //   console.log(dateString);
+  //   isLoading.value = true;
+  //   error.value = null;
+  //   try {
+  //     const response = await axios.get(`${BASE_URL}/day?date=${dateString}`, {
+  //       withCredentials: true,
+  //     });
+  //     console.log(response.data);
+
+  //     // dailyDietMap 업데이트
+  //     // 새로운 객체로 덮어쓰기 X, 기존 객체를 직접 수정
+  //     dailyDietMap[dateString] = response.data.data || [];
+
+  //     // dailyDietMap.value = {
+  //     //   ...dailyDietMap.value,
+  //     //   [dateString]: response.data.data || [],
+  //     // };
+  //     console.log(dailyDietMap);
+  //   } catch (err) {
+  //     error.value = `일간 식단 정보를 가져오는 데 실패했습니다: ${dateString}`;
+  //     // dailyDietMap.value[dateString] = [];
+  //     dailyDietMap[dateString] = [];
+  //     console.error('스토어: 일간 식단 조회 실패', err);
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+  // // 특정 날짜의 식단 목록을 가져오는 Getter
+  // // const getDietByDate = computed(() => dateString => {
+  // //   return dailyDietMap.value[dateString] || [];
+  // // });// 수정
+  // function getDietByDate(dateString) {
+  //   return dailyDietMap[dateString] || [];
+  // }
 
   async function fetchDietNutrition(foodDataArray) {
     if (!foodDataArray || foodDataArray.length === 0) {
