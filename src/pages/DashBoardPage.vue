@@ -5,7 +5,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-10 gap-6 lg:items-start">
         <div class="lg:col-span-7 grid grid-cols-1 gap-6">
-          <TodayNutritions class="h-48" />
+          <TodayNutritions class="h-62" />
 
           <TotalScores class="h-112" />
 
@@ -13,7 +13,7 @@
         </div>
 
         <div class="lg:col-span-3 grid grid-cols-1 gap-6">
-          <AiAnalysisCard class="h-48" />
+          <AiAnalysisCard class="h-62" />
 
           <MyStreak class="h-112" />
         </div>

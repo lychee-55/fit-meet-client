@@ -2,7 +2,7 @@
   <div
     :class="[
       'p-5 rounded-xl shadow-sm border transition-all duration-300',
-      'cursor-pointer hover:shadow-lg',
+      // 'cursor-pointer hover:shadow-lg',
       styles.lightBgClass,
       isExceeded ? 'border-red-200' : 'border-gray-200',
     ]"

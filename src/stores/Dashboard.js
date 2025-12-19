@@ -8,6 +8,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const todayNutrition = ref(null);
   const loading = ref(false);
 
+  const weekScoreData = ref(null);
+  const monthScoreData = ref(null);
+
   const fetchTodayNutrition = async () => {
     loading.value = true;
     try {
@@ -21,6 +24,37 @@ export const useDashboardStore = defineStore('dashboard', () => {
       console.error('오늘의 영양소 조회 실패:', error);
     } finally {
       loading.value = false;
+    }
+  };
+
+  // 주간 점수 조회
+  const fetchWeekScore = async (
+    endDate = new Date().toISOString().split('T')[0],
+  ) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/score-week`, {
+        params: { endDate },
+        withCredentials: true,
+      });
+      if (response.data.code === 0) weekScoreData.value = response.data.data;
+    } catch (error) {
+      console.error('주간 점수 조회 실패:', error);
+    }
+  };
+
+  // 월간 점수 조회
+  const fetchMonthScore = async (
+    year = new Date().getFullYear(),
+    month = new Date().getMonth() + 1,
+  ) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/score-month`, {
+        params: { year, month },
+        withCredentials: true,
+      });
+      if (response.data.code === 0) monthScoreData.value = response.data.data;
+    } catch (error) {
+      console.error('월간 점수 조회 실패:', error);
     }
   };
 
@@ -38,7 +72,11 @@ export const useDashboardStore = defineStore('dashboard', () => {
   return {
     todayNutrition,
     loading,
+    weekScoreData,
+    monthScoreData,
     fetchTodayNutrition,
+    fetchWeekScore,
+    fetchMonthScore,
     nutrientGoals,
   };
 });

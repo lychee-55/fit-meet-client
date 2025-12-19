@@ -1,4 +1,3 @@
-// src/components/diet/formElements/BasicInfoForm.vue (수정됨)
 <template>
   <section class="flex flex-col gap-6 p-2">
     <!-- <h3 class="text-xl font-semibold text-[#8A8F6E] mb-2">식단 기본 정보</h3> -->

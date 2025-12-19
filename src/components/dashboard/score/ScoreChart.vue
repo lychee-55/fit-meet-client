@@ -1,25 +1,108 @@
 <template>
-  <div
-    class="p-4 border border-gray-200 rounded-xl flex items-center justify-center"
-  >
-    <div v-if="viewMode === 'weekly'" class="text-center w-full">
-      <h3 class="font-semibold mb-2">주간 섭취량 점수 (막대 & 꺾은선 차트)</h3>
-      <p class="text-gray-500 text-sm">일요일부터 토요일까지 7개 막대 표시</p>
-      <div class="h-64 bg-gray-100 rounded-md mt-2"></div>
-    </div>
-    <div v-else class="text-center w-full">
-      <h3 class="font-semibold mb-2">월간 섭취량 점수 (막대 & 꺾은선 차트)</h3>
-      <p class="text-gray-500 text-sm">$주차별 막대 그래프 표시</p>
-      <div class="h-64 bg-gray-100 rounded-md mt-2"></div>
-    </div>
+  <div class="relative w-full h-full overflow-hidden">
+    <Bar v-if="chartData" :data="chartData" :options="chartOptions" />
   </div>
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
+import { computed } from 'vue';
+import { Bar } from 'vue-chartjs';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  BarController,
+} from 'chart.js';
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  BarController,
+);
 
 const props = defineProps({
-  viewMode: String, // 'weekly' or 'monthly'
+  items: Array,
+  type: String, // 'week' 또는 'month'
 });
-// 데이터 로직 및 차트 라이브러리 연동 코드가 여기에 추가됩니다.
+
+const chartData = computed(() => {
+  if (!props.items) return null;
+
+  const labels = props.items.map(item =>
+    props.type === 'week'
+      ? item.date.slice(5)
+      : `${item.weekStart.slice(8)}일~`,
+  );
+  const scores = props.items.map(item =>
+    props.type === 'week' ? item.score : item.averageScore,
+  );
+
+  return {
+    labels,
+    datasets: [
+      {
+        type: 'line',
+        label: '변화 추이',
+        data: scores,
+        borderColor: '#8A8F6E',
+        borderWidth: 3,
+        pointBackgroundColor: '#8A8F6E',
+        tension: 0.4, // 부드러운 꺾은선
+        fill: false,
+        zIndex: 2,
+      },
+      {
+        type: 'bar',
+        label: '일별 점수',
+        data: scores,
+        backgroundColor: scores.map(s =>
+          s >= 80 ? '#95de64' : s < 50 ? '#ffccc7' : '#e6f7ff',
+        ),
+        borderRadius: 6,
+        barPercentage: 0.6,
+        zIndex: 1,
+      },
+    ],
+  };
+});
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false, // 부모 높이에 맞추기 위해 반드시 false
+  resizeDelay: 100, // 화면 크기 변경 시 0.2초 뒤에 다시 그려 성능과 안정성 확보
+  animation: { duration: 1000, easing: 'easeOutQuart' },
+  plugins: {
+    legend: { display: false },
+    tooltip: { mode: 'index', intersect: false },
+  },
+  scales: {
+    y: {
+      min: 0,
+      max: 100,
+      grid: {
+        color: context => {
+          if (context.tick.value === 50 || context.tick.value === 80)
+            return 'rgba(255, 99, 132, 0.4)';
+          return 'rgba(0, 0, 0, 0.05)';
+        },
+        lineWidth: context =>
+          context.tick.value === 50 || context.tick.value === 80 ? 2 : 1,
+      },
+    },
+  },
+};
 </script>
