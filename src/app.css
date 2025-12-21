@@ -1,7 +1,17 @@
 @import 'tailwindcss';
+/* @reference "./tailwind.css"; */
 
 .bg-blur-container {
   @apply relative overflow-hidden min-h-screen;
+}
+
+:root {
+  --header-height: 72px; /* 헤더 h-16의 높이 */
+}
+
+/* 레이아웃을 감싸는 컨테이너 */
+.main-content {
+  padding-top: var(--header-height);
 }
 
 /* 4개의 블러 레이어 스타일 */
@@ -98,6 +108,16 @@
 }
 .lightorange-hover:hover {
   background-color: #fbecd6;
+}
+
+.blue-bg-color {
+  background-color: #617adf;
+}
+.blue-text {
+  color: #617adf;
+}
+.blue-bg-color:hover {
+  background-color: #5a73d4;
 }
 
 @layer base {

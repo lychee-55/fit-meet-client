@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref, computed, reactive } from 'vue';
-import axios from 'axios';
-
-const BASE_URL = `${import.meta.env.VITE_API_URL}/api/diets`;
+// import axios from 'axios';
+import { useAuthStore } from './Auth';
+// const BASE_URL = `${import.meta.env.VITE_API_URL}/api/diets`;
+import apiInstance from '@/api/axios';
 
 export const useDietStore = defineStore('diet', () => {
   //  state
@@ -22,9 +23,7 @@ export const useDietStore = defineStore('diet', () => {
     isLoading.value = true;
     error.value = null;
     try {
-      const response = await axios.post(`${BASE_URL}`, dietData, {
-        withCredentials: true,
-      });
+      const response = await apiInstance.post(`/api/diets`, dietData);
 
       if (response.data.code === 0) {
         console.log('식단 등록 성공');
@@ -47,9 +46,9 @@ export const useDietStore = defineStore('diet', () => {
 
     isLoading.value = true;
     try {
-      const response = await axios.get(`${BASE_URL}/day?date=${dateString}`, {
-        withCredentials: true,
-      });
+      const response = await apiInstance.get(
+        `/api/diets/day?date=${dateString}`,
+      );
 
       // 새로운 객체 레퍼런스를 할당하여 반응성을 강제로 트리거
       dailyDietMap.value = {
@@ -75,9 +74,7 @@ export const useDietStore = defineStore('diet', () => {
     if (!dietId) return null;
     isLoading.value = true;
     try {
-      const response = await axios.get(`${BASE_URL}/${dietId}`, {
-        withCredentials: true,
-      });
+      const response = await apiInstance.get(`/api/diets/${dietId}`);
       return response.data.data;
     } catch (err) {
       console.error('식단 상세 조회 실패:', err);
@@ -94,11 +91,8 @@ export const useDietStore = defineStore('diet', () => {
   async function fetchMonthDiets(startDate, endDate) {
     isLoading.value = true;
     try {
-      const response = await axios.get(
-        `${BASE_URL}/calendar?startDate=${startDate}&endDate=${endDate}`,
-        {
-          withCredentials: true,
-        },
+      const response = await apiInstance.get(
+        `/api/diets/calendar?startDate=${startDate}&endDate=${endDate}`,
       );
 
       const data = response.data.data || [];
@@ -136,11 +130,9 @@ export const useDietStore = defineStore('diet', () => {
     isLoading.value = true;
     error.value = null;
     try {
-      const response = await axios.post(
-        `${BASE_URL}/nutrition`,
-        { foods: foodDataArray },
-        { withCredentials: true },
-      );
+      const response = await apiInstance.post(`/api/diets/nutrition`, {
+        foods: foodDataArray,
+      });
 
       if (response.data.code !== 0 || !response.data.data) {
         alert('영양성분 정보를 재조회하는 데 실패했습니다.');
@@ -161,9 +153,7 @@ export const useDietStore = defineStore('diet', () => {
   async function updateDiet(dietId, updateData) {
     isLoading.value = true;
     try {
-      const response = await axios.put(`${BASE_URL}/${dietId}`, updateData, {
-        withCredentials: true,
-      });
+      const response = await apiInstance.put(`/api/diets/${dietId}`);
 
       // 수정 성공 시 dailyDietMap 동기화 로직
       const dateKey = updateData.date.split('T')[0];
@@ -185,9 +175,7 @@ export const useDietStore = defineStore('diet', () => {
     isLoading.value = true;
     error.value = null;
     try {
-      const response = await axios.delete(`${BASE_URL}/${dietId}`, {
-        withCredentials: true,
-      });
+      const response = await apiInstance.delete(`/api/diets/${dietId}`);
 
       if (response.data.code === 0) {
         // dailyDietMap에서 해당 식단 제거(store 반영)
@@ -221,13 +209,10 @@ export const useDietStore = defineStore('diet', () => {
     error.value = null; // 이전 에러 초기화
 
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/diet/images/presign`,
-        {
-          params: { filename },
-          withCredentials: true,
-        },
-      );
+      const response = await apiInstance.get(`/api/diet/images/presign`, {
+        params: { filename },
+        // withCredentials: true,
+      });
 
       // 백엔드 응답 구조에 따라 response.data.data가 될 수도 있으니 확인 필요
       return response.data;
@@ -247,12 +232,12 @@ export const useDietStore = defineStore('diet', () => {
   async function analyzeImage(imageUrl) {
     isLoading.value = true;
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/diet/images/analyze`,
+      const response = await apiInstance.post(
+        `/api/diet/images/analyze`,
         null,
         {
           params: { imageUrl },
-          withCredentials: true,
+          // withCredentials: true,
         },
       );
       return response.data; // 분석 결과 아이템 리스트

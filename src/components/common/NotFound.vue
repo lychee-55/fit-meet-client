@@ -8,7 +8,7 @@
     </p>
 
     <RouterLink
-      to="/"
+      to="/dashboard"
       class="px-6 py-3 bg-[#68b478] text-white rounded-lg hover:bg-green-700 transition"
     >
       홈으로 돌아가기

@@ -95,9 +95,9 @@ const scoreColor = score => {
   return 'text-red-400';
 };
 
-onMounted(() => {
-  dashboardStore.fetchWeekScore();
-  dashboardStore.fetchMonthScore();
+onMounted(async () => {
+  await dashboardStore.fetchWeekScore();
+  await dashboardStore.fetchMonthScore();
 });
 
 // 탭 전환 시 데이터 재조회 (필요시)

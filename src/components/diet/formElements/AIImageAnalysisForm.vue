@@ -135,7 +135,7 @@
               @click="performSearch"
               class="bg-[#8A8F6E] text-white p-2.5 rounded-lg hover:bg-[#6e7256] transition"
             >
-              <MagnifyingGlassIcon class="h-4 h-4" />
+              <MagnifyingGlassIcon class="w-4 h-4" />
             </button>
           </div>
 

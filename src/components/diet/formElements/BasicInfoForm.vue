@@ -1,5 +1,5 @@
 <template>
-  <section class="flex flex-col gap-6 p-2">
+  <section class="flex flex-col gap-6 py-20">
     <!-- <h3 class="text-xl font-semibold text-[#8A8F6E] mb-2">식단 기본 정보</h3> -->
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

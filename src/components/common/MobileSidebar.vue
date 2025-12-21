@@ -1,6 +1,11 @@
 <template>
   <div
-    class="fixed top-0 right-0 h-screen bg-white shadow-xl z-50 transform transition-transform duration-300 flex flex-col"
+    v-if="open"
+    class="fixed inset-0 bg-black/20 backdrop-blur-sm z-70"
+    @click="close"
+  ></div>
+  <div
+    class="fixed top-0 right-0 h-screen bg-white shadow-xl z-80 transform transition-transform duration-300 flex flex-col"
     :class="open ? 'translate-x-0 w-3/4' : 'translate-x-full w-3/4'"
   >
     <!-- 헤더 -->
@@ -27,7 +32,16 @@
         식단관리
       </RouterLink>
 
-      <RouterLink to="/workout" @click="close" class="flex items-center gap-3">
+      <RouterLink
+        to="/community"
+        @click="close"
+        class="flex items-center gap-3"
+      >
+        <UserGroupIcon class="w-6 h-6 text-gray-600" />
+        커뮤니티
+      </RouterLink>
+
+      <RouterLink to="/training" @click="close" class="flex items-center gap-3">
         <PlayCircleIcon class="w-6 h-6 text-gray-600" />
         운동영상
       </RouterLink>
@@ -51,7 +65,7 @@
             class="flex items-center gap-3 text-gray-700 hover:text-blue-600"
           >
             <Cog6ToothIcon class="w-5 h-5" />
-            <span>마이페이지</span>
+            <span>설정</span>
           </RouterLink>
         </div>
 
@@ -102,6 +116,7 @@ import {
   HomeIcon,
   ScaleIcon,
   PlayCircleIcon,
+  UserGroupIcon,
 } from '@heroicons/vue/24/outline';
 import { useAuthStore } from '@/stores/Auth';
 import profileImg from '@/assets/profile.png';
@@ -114,10 +129,21 @@ const props = defineProps({
 
 const store = useAuthStore();
 
-const handleLogout = () => {
-  store.logout();
+const handleLogout = async () => {
+  await store.logout();
   props.close();
 };
+
+watch(
+  () => props.open,
+  newVal => {
+    if (newVal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  },
+);
 </script>
 
 <style scoped></style>

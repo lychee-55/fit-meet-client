@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import axios from 'axios';
-
-const BASE_URL = `${import.meta.env.VITE_API_URL}/api/dashboard`;
+import apiInstance from '@/api/axios';
 
 export const useDashboardStore = defineStore('dashboard', () => {
   const todayNutrition = ref(null);
@@ -17,15 +15,13 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const fetchTodayNutrition = async () => {
     loading.value = true;
     try {
-      const response = await axios.get(`${BASE_URL}/today-nutrition`, {
-        withCredentials: true,
-      });
+      const response = await apiInstance.get('/api/dashboard/today-nutrition');
       if (response.data.code === 0) {
         todayNutrition.value = response.data.data;
       }
     } catch (error) {
       console.error('오늘의 영양소 조회 실패:', error);
-      throw err;
+      // throw error;
     } finally {
       loading.value = false;
     }
@@ -37,14 +33,13 @@ export const useDashboardStore = defineStore('dashboard', () => {
   ) => {
     console.log(endDate);
     try {
-      const response = await axios.get(`${BASE_URL}/score-week`, {
+      const response = await apiInstance.get(`/api/dashboard/score-week`, {
         params: { endDate },
-        withCredentials: true,
       });
       if (response.data.code === 0) weekScoreData.value = response.data.data;
     } catch (error) {
       console.error('주간 점수 조회 실패:', error);
-      throw error;
+      // throw error;
     }
   };
 
@@ -54,9 +49,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
     month = new Date().getMonth() + 1,
   ) => {
     try {
-      const response = await axios.get(`${BASE_URL}/score-month`, {
+      const response = await apiInstance.get(`/api/dashboard/score-month`, {
         params: { year, month },
-        withCredentials: true,
       });
       console.log(response);
       if (response.data.code === 0) monthScoreData.value = response.data.data;
@@ -89,17 +83,20 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
     loading.value = true;
     try {
-      const response = await axios.post(`${BASE_URL}/ai-weekly`, null, {
-        params: { endDate },
-        withCredentials: true,
-      });
+      const response = await apiInstance.post(
+        `/api/dashboard/ai-weekly`,
+        null,
+        {
+          params: { endDate },
+        },
+      );
       if (response.data.code === 0) {
         aiAnalysisResult.value = response.data.data;
         return response.data.data;
       }
     } catch (error) {
       console.error('AI 분석 실패:', error);
-      throw error;
+      // throw error;
     } finally {
       loading.value = false;
     }

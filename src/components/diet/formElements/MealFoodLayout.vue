@@ -28,9 +28,14 @@
         >
           <h4 class="text-lg font-bold text-gray-800">검색 결과</h4>
 
-          <div class="flex-1 overflow-y-auto max-h-[500px] custom-scrollbar">
+          <div class="flex-1 overflow-y-auto max-h-[410px] custom-scrollbar">
             <div v-for="food in searchResults" :key="food.foodCd">
               <MealSearchFoodItem :food="food" @food-added="handleFoodAdded" />
+            </div>
+            <div v-if="searchResults.length === 0">
+              <p class="text-gray-500 text-center py-40">
+                아직 검색된 음식이 없습니다.
+              </p>
             </div>
           </div>
         </div>

@@ -93,9 +93,14 @@ const submitLogin = async () => {
         alert(res.msg);
 
         passwordInput.value?.focus();
+      } else {
+        emailMsg.value = '이메일이 존재하지 않습니다. 회원가입을 해주세요';
       }
     }
   } catch (err) {
+    if (err.response) {
+      console.error('에러가 뭐야', err);
+    }
     emailMsg.value = '서버 오류가 발생했습니다.';
   }
 };

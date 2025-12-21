@@ -1,28 +1,11 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, markRaw } from 'vue';
 import axios from 'axios';
 import router from '@/router';
 import { useUserStore } from './User';
-
-// 인터셉터 에러 담을 큐 생성
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) prom.reject(error);
-    else prom.resolve(token);
-  });
-  failedQueue = [];
-};
+import apiInstance from '@/api/axios';
 
 export const useAuthStore = defineStore('auth', () => {
-  // === STATE (상태) ===
-  const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    withCredentials: true,
-  });
-
   const userInfo = ref({
     nickname: '',
     profileImageUrl: '',
@@ -101,7 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
     loadingUser.value = true;
 
     try {
-      const res = await api.get(`/api/user/profile-image`);
+      const res = await apiInstance.get(`/api/user/profile-image`);
       console.log('사용자 정보 조회::', res);
       if (res.data.code === 0) {
         const userData = res.data.data;
@@ -127,7 +110,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Access Token 재발급 및 사용자 정보 재조회 시도(리프레시 토큰)('/api/auth/refresh')
   async function refreshAccessToken() {
-    const res = await api.post('/api/auth/refresh');
+    const res = await apiInstance.post('/api/auth/refresh');
 
     if (res.data.code !== 0) {
       throw new Error('Refresh Failed');
@@ -139,7 +122,7 @@ export const useAuthStore = defineStore('auth', () => {
     loadingUser.value = true;
     const userStore = useUserStore();
     try {
-      const res = await api.get(`/api/user/profile-info`);
+      const res = await apiInstance.get(`/api/user/profile-info`);
       console.log('사용자 정보 조회::', res);
 
       if (res.data.code === 0) {
@@ -159,24 +142,7 @@ export const useAuthStore = defineStore('auth', () => {
         return true;
       }
       return false;
-      // else {
-      //   console.error(
-      //     'fetchAllUserInfo 실패: 서버 응답 코드 오류',
-      //     res.data.msg,
-      //   );
-      //   userInfo.value = {};
-      //   isLoggedIn.value = false;
-      //   userStore.setHealthInfoFromFetch({});
-      //   return false;
-      // }
     } catch (err) {
-      // console.error(
-      //   'fetchAllUserInfo API 호출 실패:',
-      //   err.response?.data || err,
-      // );
-      // userInfo.value = {};
-      // isLoggedIn.value = false;
-      // userStore.setHealthInfoFromFetch({});
       return false;
     } finally {
       loadingUser.value = false;
@@ -279,8 +245,6 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn.value = false;
   }
 
-  setupInterceptors(api, resetAuthState);
-
   return {
     // State
     userInfo,
@@ -290,7 +254,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Getters
     isAuthenticated,
     userNickname,
-    api,
+    // apiInstance,
 
     // Actions
     createUser,
@@ -307,61 +271,3 @@ export const useAuthStore = defineStore('auth', () => {
     resetAuthState,
   };
 });
-// 리프레시 인터셉터
-function setupInterceptors(apiInstance, resetAuthState) {
-  apiInstance.interceptors.response.use(
-    res => res,
-    async error => {
-      const originalRequest = error.config;
-
-      if (
-        (error.response?.status === 401 || error.response?.status === 403) &&
-        !originalRequest._retry &&
-        !originalRequest.url.includes('/api/auth/refresh') &&
-        !originalRequest.url.includes('/api/auth/login') &&
-        !originalRequest.url.includes('/api/auth/signup') &&
-        !originalRequest.url.includes('/api/auth/password-reset')
-      ) {
-        if (isRefreshing) {
-          // 리프레시 중이면 대기열에 추가
-          return new Promise((resolve, reject) => {
-            failedQueue.push({ resolve, reject });
-          })
-            .then(() => apiInstance(originalRequest))
-            .catch(err => Promise.reject(err));
-        }
-        originalRequest._retry = true;
-        isRefreshing = true;
-
-        try {
-          // refresh 실행
-          console.log('액세스 만료 감지: 리프레시 시도 중...');
-          await apiInstance.post('/api/auth/refresh');
-
-          await fetchBasicUserInfo();
-
-          console.log('리프레시 및 유저 정보 복구 성공');
-
-          processQueue(null); // 대기 중인 요청들 진행
-          // 원래 요청 재시도
-          return apiInstance(originalRequest);
-        } catch (refreshError) {
-          processQueue(refreshError, null);
-          resetAuthState();
-
-          if (!window.isAlerting) {
-            window.isAlerting = true;
-            // alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-            router.push({ name: 'login' }).then(() => {
-              window.isAlerting = false;
-            });
-          }
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
-        }
-      }
-      return Promise.reject(error);
-    },
-  );
-}
