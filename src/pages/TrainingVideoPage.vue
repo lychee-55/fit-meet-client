@@ -2,8 +2,11 @@
   <div>
     <RouterView></RouterView>
   </div>
+  <GoToTopBtn />
 </template>
 
-<script setup></script>
+<script setup>
+import GoToTopBtn from "@/components/common/GoToTopBtn.vue";
+</script>
 
 <style scoped></style>

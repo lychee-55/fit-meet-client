@@ -170,27 +170,27 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useDietStore } from '@/stores/Diet';
-import { useMealStore } from '@/stores/Meal';
-import axios from 'axios';
+import { ref, computed, watch } from "vue";
+import { useDietStore } from "@/stores/Diet";
+import { useMealStore } from "@/stores/Meal";
+import axios from "axios";
 import {
   PhotoIcon,
   XMarkIcon,
   SparklesIcon,
   MagnifyingGlassIcon,
-} from '@heroicons/vue/24/solid';
-import MealSearchFoodItem from './MealSearchFoodItem.vue';
+} from "@heroicons/vue/24/solid";
+import MealSearchFoodItem from "./MealSearchFoodItem.vue";
 
-const props = defineProps(['formData', 'mode']);
-const emit = defineEmits(['update:form-data']);
+const props = defineProps(["formData", "mode"]);
+const emit = defineEmits(["update:form-data"]);
 
 const dietStore = useDietStore();
 const mealStore = useMealStore();
 
 const isUploading = ref(false);
 const showManualSearch = ref(false); // 검색창 노출 여부
-const searchQuery = ref('');
+const searchQuery = ref("");
 const analysisResults = ref([]);
 
 const searchResults = computed(() => mealStore.searchResults);
@@ -206,15 +206,15 @@ async function handleFileUpload(event) {
   analysisResults.value = []; // 이전 결과 초기화
 
   const previewUrl = URL.createObjectURL(file);
-  emit('update:form-data', { ...props.formData, imageUrl: previewUrl });
+  emit("update:form-data", { ...props.formData, imageUrl: previewUrl });
 
   try {
     const presign = await dietStore.getPresignedUrl(file.name);
     await axios.put(presign.uploadUrl, file, {
-      headers: { 'Content-Type': file.type },
+      headers: { "Content-Type": file.type },
     });
 
-    emit('update:form-data', {
+    emit("update:form-data", {
       ...props.formData,
       imageUrl: presign.publicUrl,
     });
@@ -223,7 +223,7 @@ async function handleFileUpload(event) {
     analysisResults.value = items;
   } catch (error) {
     console.error(error);
-    alert('이미지 분석에 실패했습니다. 다시 시도해주세요.');
+    alert("이미지 분석에 실패했습니다. 다시 시도해주세요.");
   } finally {
     isUploading.value = false;
   }
@@ -240,30 +240,30 @@ const performSearch = () => {
   mealStore.searchMeals(searchQuery.value);
 };
 
-watch(searchQuery, newKeyword => {
+watch(searchQuery, (newKeyword) => {
   if (showManualSearch.value) debouncedSearch(newKeyword);
 });
 
-const handleFoodAdded = finalFoodData => {
+const handleFoodAdded = (finalFoodData) => {
   if (!finalFoodData) return;
   const updatedFoods = [
     ...props.formData.foods,
-    { ...finalFoodData, sourceType: 'IMAGE' },
+    { ...finalFoodData, sourceType: "IMAGE" },
   ];
-  emit('update:form-data', { ...props.formData, foods: updatedFoods });
+  emit("update:form-data", { ...props.formData, foods: updatedFoods });
 };
 
 function removeFood(index) {
   const updatedFoods = props.formData.foods.filter((_, i) => i !== index);
-  emit('update:form-data', { ...props.formData, foods: updatedFoods });
+  emit("update:form-data", { ...props.formData, foods: updatedFoods });
 }
 
 function resetImage() {
   analysisResults.value = [];
-  searchQuery.value = '';
+  searchQuery.value = "";
   showManualSearch.value = false;
   mealStore.searchResults = [];
-  emit('update:form-data', { ...props.formData, imageUrl: '', foods: [] });
+  emit("update:form-data", { ...props.formData, imageUrl: "", foods: [] });
 }
 </script>
 

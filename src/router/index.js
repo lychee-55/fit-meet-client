@@ -21,6 +21,7 @@ import CommunityMyPage from "@/pages/CommunityMyPage.vue";
 import CreatePostPage from "@/pages/CreatePostPage.vue";
 import CommunityFeedPage from "@/pages/CommunityFeedPage.vue";
 import TrainingVideosView from "@/components/training/TrainingVideosView.vue";
+import VideoDetailView from "@/components/training/VideoDetailView.vue";
 
 const routes = [
   // {
@@ -111,6 +112,12 @@ const routes = [
         path: "",
         name: "videos",
         component: TrainingVideosView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "videos/:id",
+        name: "videoDetail",
+        component: VideoDetailView,
         meta: { requiresAuth: true },
       },
     ],

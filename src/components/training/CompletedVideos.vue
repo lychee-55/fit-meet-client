@@ -36,7 +36,9 @@
           class="transition-transform duration-500 ease-in-out flex"
         >
           <VideoCardList
-            :videos="store.todayCompletedVideos"
+            :videos="
+              store.todayCompletedVideos.map((v) => ({ ...v, id: v.videoId }))
+            "
             :is-slider="true"
             :show-actions="false"
             class="flex-shrink-0"

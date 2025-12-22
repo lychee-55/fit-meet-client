@@ -12,6 +12,7 @@ export const useTrainingStore = defineStore("training", () => {
   const loading = ref(false);
   const totalPages = ref(0);
   const totalElements = ref(0);
+  const isSync = ref(false);
 
   // 검색/필터링 상태 (GET /api/training/videos 전용)
   const filters = reactive({
@@ -22,6 +23,29 @@ export const useTrainingStore = defineStore("training", () => {
     page: 0,
     size: 12,
   });
+
+  // 유투브 싱크 맞추기 (post /api/admin/training/youtube/sync 전용)
+  const fetchYoutubeAdminSync = async () => {
+    // 이미 성공했거나 로딩 중이면 중복 실행 방지
+    if (isSync.value || loading.value) return;
+
+    loading.value = true;
+    try {
+      const { data } = await apiInstance.post(
+        "/api/admin/training/youtube/sync",
+        {}
+      );
+
+      if (data.code === 0) {
+        console.log(data.msg);
+        isSync.value = true;
+      }
+    } catch (error) {
+      console.error("유투브 싱크 실패", error);
+    } finally {
+      loading.value = false;
+    }
+  };
 
   // 1. 운동영상 목록 조회 (GET /api/training/videos)
   const fetchVideos = async () => {
@@ -88,11 +112,14 @@ export const useTrainingStore = defineStore("training", () => {
     loading.value = true;
     try {
       const { data } = await apiInstance.get(`/api/training/videos/${id}`);
+      // if (data.code === 0) {
+      //   currentVideo.value = data.data;
+      //   // 상세 조회 시 해당 영상의 댓글도 함께 저장 (명세상 포함되어 있음)
+      //   comments.value = data.data.comments || [];
+      //   return data.data;
+      // }
       if (data.code === 0) {
         currentVideo.value = data.data;
-        // 상세 조회 시 해당 영상의 댓글도 함께 저장 (명세상 포함되어 있음)
-        comments.value = data.data.comments || [];
-        return data.data;
       }
     } catch (error) {
       console.error("영상 상세 조회 실패", error);
@@ -205,6 +232,7 @@ export const useTrainingStore = defineStore("training", () => {
     comments,
     loading,
     filters,
+    fetchYoutubeAdminSync,
     fetchVideos,
     fetchRecommendedVideos,
     fetchTodayCompletedVideos,
