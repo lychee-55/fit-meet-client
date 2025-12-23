@@ -1,28 +1,19 @@
 <script setup>
 import AppHeader from '@/components/common/Header.vue';
 import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/Auth';
 import MobileSidebar from './components/common/MobileSidebar.vue';
-import { useRouter } from 'vue-router';
+import { useTrainingStore } from './stores/Training';
 
-// const store = useAuthStore();
-// const router = useRouter();
+const trainingStore = useTrainingStore();
 
 const isSidebarOpen = ref(false);
 
-// onMounted(async () => {
-//   // 쿠키 기반 로그인 복구
-//   const publicRoutes = ['login', 'signup', 'passwordReset'];
-
-//   if (!publicRoutes.includes(router.currentRoute.value.name)) {
-//     await store.fetchBasicUserInfo();
-
-//     if (!store.isLoggedIn && !store.authChecked) {
-//       alert('로그인이 필요하거나 세션이 만료되었습니다.');
-//       router.push({ name: 'login' });
-//     }
-//   }
-// });
+onMounted(async () => {
+  // 개발 환경에서만 수동 싱크 실행 (배포 후에는 주석 처리하거나 조건문 사용)
+  if (import.meta.env.MODE === 'development') {
+    await trainingStore.fetchYoutubeAdminSync();
+  }
+});
 </script>
 
 <template>

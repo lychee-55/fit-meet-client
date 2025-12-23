@@ -4,7 +4,7 @@
     <div class="flex gap-2">
       <input
         v-model="newTag"
-        @keyup.enter="handleAddTag"
+        @keydown.enter.prevent="handleAddTag"
         type="text"
         placeholder="태그 입력 후 Enter"
         class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#8A8F6E] outline-none"
@@ -24,7 +24,11 @@
         class="px-3 py-1 bg-[#8A8F6E]/10 text-[#8A8F6E] text-xs font-bold rounded-full flex items-center gap-1"
       >
         #{{ tag }}
-        <button @click="$emit('remove-tag', i)" class="hover:text-red-500">
+        <button
+          type="button"
+          @click="$emit('remove-tag', i)"
+          class="hover:text-red-500 font-bold ml-1"
+        >
           ×
         </button>
       </span>
@@ -39,8 +43,9 @@ const emit = defineEmits(['add-tag', 'remove-tag']);
 const newTag = ref('');
 
 const handleAddTag = () => {
-  if (newTag.value.trim()) {
-    emit('add-tag', newTag.value.trim());
+  const trimmed = newTag.value.trim();
+  if (trimmed) {
+    emit('add-tag', trimmed);
     newTag.value = '';
   }
 };

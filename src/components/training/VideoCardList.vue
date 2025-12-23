@@ -43,7 +43,7 @@
           >
             #
             {{
-              CATEGORY_MODE[video.mainCategory] || video.mainCategory || "전체"
+              CATEGORY_MODE[video.mainCategory] || video.mainCategory || '전체'
             }}
           </span>
 
@@ -75,7 +75,7 @@
             >
               <CheckCircleIcon
                 :class="
-                  video.isCompleted
+                  video.completed || video.completedToday || video.doneBefore
                     ? 'text-green-600'
                     : 'text-gray-300 group-hover/check:text-green-500'
                 "
@@ -90,11 +90,11 @@
 </template>
 
 <script setup>
-import { useTrainingStore } from "@/stores/Training";
-import { HeartIcon, CheckCircleIcon } from "@heroicons/vue/24/outline";
+import { useTrainingStore } from '@/stores/Training';
+import { HeartIcon, CheckCircleIcon } from '@heroicons/vue/24/outline';
 // 실제로 좋아요/완료 여부에 따라 색을 채우고 싶다면 아래 solid 아이콘도 같이 import 하여 교체 사용 가능합니다.
 // import { HeartIcon as HeartSolid } from "@heroicons/vue/24/solid";
-import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router';
 const store = useTrainingStore();
 
 defineProps({
@@ -108,27 +108,27 @@ defineProps({
 });
 
 const CATEGORY_MODE = {
-  HOME: "홈트",
-  YOGA: "요가",
-  PILATES: "필라테스",
+  HOME: '홈트',
+  YOGA: '요가',
+  PILATES: '필라테스',
 };
 
 const router = useRouter();
 
-const formatDuration = (sec) => {
+const formatDuration = sec => {
   const min = Math.floor(sec / 60);
   const s = sec % 60;
-  return `${min}:${s.toString().padStart(2, "0")}`;
+  return `${min}:${s.toString().padStart(2, '0')}`;
 };
 
 // 버튼 핸들러 (부모 컴포넌트나 Store에 요청을 보내도록 emit 처리 권장)
-const handleLike = async (id) => {
-  console.log("좋아요 클릭:", id);
+const handleLike = async id => {
+  console.log('좋아요 클릭:', id);
   await store.toggleVideoLike(id);
 };
 
-const handleComplete = async (id) => {
-  console.log("오늘의 운동 완료 클릭:", id);
+const handleComplete = async id => {
+  console.log('오늘의 운동 완료 클릭:', id);
   await store.toggleVideoComplete(id);
 };
 </script>

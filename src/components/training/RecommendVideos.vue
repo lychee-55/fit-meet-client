@@ -72,15 +72,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
-import VideoCardList from "./VideoCardList.vue";
-import { useTrainingStore } from "@/stores/Training";
+import { ref, computed, onMounted } from 'vue';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline';
+import VideoCardList from './VideoCardList.vue';
+import { useTrainingStore } from '@/stores/Training';
 
 const store = useTrainingStore();
 const loading = ref(false);
 const currentIndex = ref(0);
 
+console.log('리턴값::', store.recommendedVideos);
 // 슬라이더 최대 이동 가능 인덱스 계산
 const maxIndex = computed(() => {
   const count = store.recommendedVideos?.length || 0;

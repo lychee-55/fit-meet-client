@@ -92,7 +92,9 @@
       <button
         @click="store.toggleVideoComplete(store.currentVideo.id)"
         :class="
-          store.currentVideo.completedToday
+          store.currentVideo.completedToday ||
+          store.currentVideo.completed ||
+          store.currentVideo.doneBefore
             ? 'bg-[#8A8F6E] text-white'
             : 'bg-white border-2 border-[#8A8F6E] text-[#8A8F6E]'
         "
@@ -100,9 +102,11 @@
       >
         <CheckBadgeIcon class="w-6 h-6" />
         {{
-          store.currentVideo.completedToday
-            ? "오늘 운동 완료!"
-            : "오늘의 운동 완료하기"
+          store.currentVideo.completedToday ||
+          store.currentVideo.completed ||
+          store.currentVideo.doneBefore
+            ? '오늘 운동 완료!'
+            : '오늘의 운동 완료하기'
         }}
       </button>
     </div>
@@ -181,41 +185,41 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useTrainingStore } from "@/stores/Training";
+import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useTrainingStore } from '@/stores/Training';
 import {
   HeartIcon,
   EyeIcon,
   CheckBadgeIcon,
   DocumentTextIcon,
   ArrowLeftIcon,
-} from "@heroicons/vue/24/outline";
-import VideoCommentSection from "./VideoCommentSection.vue";
+} from '@heroicons/vue/24/outline';
+import VideoCommentSection from './VideoCommentSection.vue';
 
 const route = useRoute();
 const router = useRouter();
 const store = useTrainingStore();
 
 const CATEGORY_MODE = {
-  HOME: "홈트레이닝",
-  YOGA: "요가",
-  PILATES: "필라테스",
+  HOME: '홈트레이닝',
+  YOGA: '요가',
+  PILATES: '필라테스',
 };
 
-const handleCommentSubmit = async (content) => {
+const handleCommentSubmit = async content => {
   await store.addVideoComment(store.currentVideo.id, content);
 };
 
 // 댓글 삭제 핸들러
-const handleCommentDelete = async (commentId) => {
+const handleCommentDelete = async commentId => {
   await store.deleteVideoComment(store.currentVideo.id, commentId);
 };
 
-const formatDuration = (sec) => {
+const formatDuration = sec => {
   const min = Math.floor(sec / 60);
   const s = sec % 60;
-  return `${min}분 ${s.toString().padStart(2, "0")}초`;
+  return `${min}분 ${s.toString().padStart(2, '0')}초`;
 };
 
 onMounted(() => {

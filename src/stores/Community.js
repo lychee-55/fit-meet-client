@@ -36,108 +36,21 @@ export const useCommunityStore = defineStore('community', () => {
       const { data } = await apiInstance.get('/api/community', {
         params: filters,
       });
+      console.log(data);
       if (data.code === 0) {
         posts.value = data.data;
       }
-      /* [기존 목업 ]
-       posts.value = [
-        {
-          id: 1,
-          writerNickname: '김헬스', // author -> writerNickname
-          title: '오늘 오운완 인증합니다!', // title 추가
-          contentPreview:
-            '오늘 등 운동 완료! 광배근이 아주 잘 먹었네요. #오운완 #헬스', // content -> contentPreview
-          likeCount: 12, // likes -> likeCount
-          commentCount: 5, // comments -> commentCount
-          viewCount: 124, // viewCount 추가
-          createdAt: new Date().toISOString(), // time -> createdAt
-          writerProfileImageUrl: 'https://picsum.photos/100/100',
-          imageUrl: 'https://picsum.photos/500/500',
-          tags: ['오운완', '헬스', '등운동'], // tags 추가
-          likedByMe: false,
-        },
-        {
-          id: 2,
-          writerNickname: '김헬스', // author -> writerNickname
-          title: '오늘 오운완 인증합니다!', // title 추가
-          contentPreview:
-            '오늘 등 운동 완료! 광배근이 아주 잘 먹었네요. #오운완 #헬스', // content -> contentPreview
-          likeCount: 12, // likes -> likeCount
-          commentCount: 5, // comments -> commentCount
-          viewCount: 124, // viewCount 추가
-          createdAt: new Date().toISOString(), // time -> createdAt
-          writerProfileImageUrl: 'https://picsum.photos/100/100',
-          imageUrl: 'https://picsum.photos/500/500',
-          tags: ['오운완', '헬스', '등운동'], // tags 추가
-          likedByMe: false,
-        },
-        {
-          id: 3,
-          writerNickname: '김헬스', // author -> writerNickname
-          title: '오늘 오운완 인증합니다!', // title 추가
-          contentPreview:
-            '오늘 등 운동 완료! 광배근이 아주 잘 먹었네요. #오운완 #헬스', // content -> contentPreview
-          likeCount: 12, // likes -> likeCount
-          commentCount: 5, // comments -> commentCount
-          viewCount: 124, // viewCount 추가
-          createdAt: new Date().toISOString(), // time -> createdAt
-          writerProfileImageUrl: 'https://picsum.photos/100/100',
-          imageUrl: 'https://picsum.photos/500/500',
-          tags: ['오운완', '헬스', '등운동'], // tags 추가
-          likedByMe: false,
-        },
-        {
-          id: 4,
-          writerNickname: '김헬스', // author -> writerNickname
-          title: '오늘 오운완 인증합니다!', // title 추가
-          contentPreview:
-            '오늘 등 운동 완료! 광배근이 아주 잘 먹었네요. #오운완 #헬스', // content -> contentPreview
-          likeCount: 12, // likes -> likeCount
-          commentCount: 5, // comments -> commentCount
-          viewCount: 124, // viewCount 추가
-          createdAt: new Date().toISOString(), // time -> createdAt
-          writerProfileImageUrl: 'https://picsum.photos/100/100',
-          imageUrl: 'https://picsum.photos/500/500',
-          tags: ['오운완', '헬스', '등운동'], // tags 추가
-          likedByMe: false,
-        },
-        {
-          id: 5,
-          writerNickname: '김헬스', // author -> writerNickname
-          title: '오늘 오운완 인증합니다!', // title 추가
-          contentPreview:
-            '오늘 등 운동 완료! 광배근이 아주 잘 먹었네요. #오운완 #헬스', // content -> contentPreview
-          likeCount: 12, // likes -> likeCount
-          commentCount: 5, // comments -> commentCount
-          viewCount: 124, // viewCount 추가
-          createdAt: new Date().toISOString(), // time -> createdAt
-          writerProfileImageUrl: 'https://picsum.photos/100/100',
-          imageUrl: 'https://picsum.photos/500/500',
-          tags: ['오운완', '헬스', '등운동'], // tags 추가
-          likedByMe: false,
-        },
-        {
-          id: 6,
-          writerNickname: '김헬스', // author -> writerNickname
-          title: '오늘 오운완 인증합니다!', // title 추가
-          contentPreview:
-            '오늘 등 운동 완료! 광배근이 아주 잘 먹었네요. #오운완 #헬스', // content -> contentPreview
-          likeCount: 12, // likes -> likeCount
-          commentCount: 5, // comments -> commentCount
-          viewCount: 124, // viewCount 추가
-          createdAt: new Date().toISOString(), // time -> createdAt
-          writerProfileImageUrl: 'https://picsum.photos/100/100',
-          imageUrl: 'https://picsum.photos/500/500',
-          tags: ['오운완', '헬스', '등운동'], // tags 추가
-          likedByMe: false,
-        },
-      ];
-      */
     } catch (error) {
       console.error('목록 조회 실패', error);
     } finally {
       loading.value = false;
     }
+    /*
+    *요약: 지금 바로 할 일
+Community.js에서 params를 정의할 때 if (value !== '') 조건문을 추가하여 값이 있을 때만 객체에 담으세요.
+
+브라우저 네트워크 탭에서 요청 URL이 ...?sort=POPULAR&page=0&size=20 처럼 깔끔하게 바뀌었는지 확인하세요.
+    */
   };
 
   // 게시글 상세 조회 (GET /api/community/{postId})
