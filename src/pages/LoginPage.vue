@@ -14,7 +14,7 @@
       >
         <h2>아직 회원가입이 안되셨나요?</h2>
 
-        <!-- <DotLottieVue
+        <DotLottieVue
           style="height: 80px; width: 250px"
           autoplay
           speed="1.6"
@@ -25,7 +25,7 @@
           autoplay
           speed="1"
           src="https://lottie.host/f1aa641d-d200-4815-9820-0db6a07399bd/meSYimCaEk.lottie"
-        /> -->
+        />
         <RouterLink
           to="/auth/signup"
           class="inline-flex items-center justify-center space-x-2 px-4 pt-4 text-sm font-medium rounded-lg text-gray-700 hover:border-[#68b478] hover:text-[#68b478] transition duration-150"

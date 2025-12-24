@@ -51,6 +51,7 @@ apiInstance.interceptors.response.use(
       try {
         // refresh 실행
         console.log("액세스 만료 감지: 리프레시 시도 중...");
+        console.log("originalrequest", originalRequest.url);
         await axios.post(
           `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
           {},

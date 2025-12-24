@@ -79,7 +79,7 @@ const updatePosition = () => {
   if (dropdownRef.value) {
     const rect = dropdownRef.value.getBoundingClientRect();
     // 버튼의 오른쪽 끝에 드롭다운 오른쪽 끝을 맞춤 (오른쪽 정렬)
-    dropdownStyle.top = `${rect.bottom + window.scrollY + 8}px`;
+    dropdownStyle.top = `${rect.bottom + 8}px`;
     dropdownStyle.left = `${rect.right - 192}px`;
   }
 };

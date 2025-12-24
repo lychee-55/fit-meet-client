@@ -12,7 +12,7 @@
       </div>
       <div class="text-center mb-3">
         <h1 class="text-xl font-black text-gray-900">
-          {{ isEditMode ? '게시글 수정' : '새 게시글 작성' }}
+          {{ isEditMode ? "게시글 수정" : "새 게시글 작성" }}
         </h1>
       </div>
       <hr class="border-gray-200 mb-3" />
@@ -22,10 +22,10 @@
 </template>
 
 <script setup>
-import HandleSubmitPostForm from '@/components/community/HandleSubmitPostForm.vue';
-import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
-import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import HandleSubmitPostForm from "@/components/community/HandleSubmitPostForm.vue";
+import { ArrowLeftIcon } from "@heroicons/vue/24/outline";
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
@@ -35,8 +35,12 @@ const currentMode = computed(() => route.params.method);
 
 // URL 파라미터 :id (수정 시에만 존재)
 const postId = computed(() => route.params.id);
+// const postId = computed(() => {
+//   const id = route.params.id;
+//   return id ? Number(id) : null; // 혹은 Number(id)
+// });
 
-const isEditMode = computed(() => currentMode.value === 'edit');
+const isEditMode = computed(() => currentMode.value === "edit");
 
 const goBack = () => {
   router.back();

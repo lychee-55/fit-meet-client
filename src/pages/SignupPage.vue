@@ -14,13 +14,13 @@
       >
         <h2>이미 계정이 있으신가요?</h2>
 
-        <!-- <DotLottieVue
+        <DotLottieVue
           style="height: 300px; width: 300px"
           loop
           autoplay
           speed="1"
           src="https://lottie.host/05235080-1053-437d-98f3-dde1c5f7a31a/iINGMsXQSw.lottie"
-        /> -->
+        />
 
         <RouterLink
           to="/auth/login"

@@ -22,6 +22,7 @@ import CreatePostPage from "@/pages/CreatePostPage.vue";
 import CommunityFeedPage from "@/pages/CommunityFeedPage.vue";
 import TrainingVideosView from "@/components/training/TrainingVideosView.vue";
 import VideoDetailView from "@/components/training/VideoDetailView.vue";
+import PostItemDetailModal from "@/components/community/PostItemDetailModal.vue";
 
 const routes = [
   // {
@@ -86,6 +87,7 @@ const routes = [
         path: "",
         name: "communityFeed",
         component: CommunityFeedPage,
+        alias: "post/:id",
         meta: { requiresAuth: true },
       },
       {
@@ -99,6 +101,7 @@ const routes = [
         name: "postForm",
         component: CreatePostPage,
         meta: { requiresAuth: true },
+        props: true,
       },
     ],
   },
@@ -147,14 +150,14 @@ router.beforeEach(async (to, from, next) => {
     return next();
   }
 
-  if (!store.authChecked) {
-    try {
-      await store.fetchBasicUserInfo();
-    } catch (err) {
-      // 실패해도 catch해서 다음 로직(로그인 페이지 이동)으로 넘겨야 함
-      console.warn("인증 확인 실패");
-    }
-  }
+  // if (!store.authChecked) {
+  //   try {
+  //     await store.fetchBasicUserInfo();
+  //   } catch (err) {
+  //     // 실패해도 catch해서 다음 로직(로그인 페이지 이동)으로 넘겨야 함
+  //     console.warn("인증 확인 실패");
+  //   }
+  // }
 
   // 인증 필요 없는 페이지 접근 시 정보가 없다면 1회 시도
   if (!store.isLoggedIn && !store.authChecked) {

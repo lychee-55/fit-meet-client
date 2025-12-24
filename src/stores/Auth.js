@@ -1,17 +1,20 @@
-import { defineStore } from 'pinia';
-import { ref, computed, markRaw } from 'vue';
-import axios from 'axios';
-import router from '@/router';
-import { useUserStore } from './User';
-import apiInstance from '@/api/axios';
+import { defineStore } from "pinia";
+import { ref, computed, markRaw } from "vue";
+import axios from "axios";
+import router from "@/router";
+import { useUserStore } from "./User";
+import apiInstance from "@/api/axios";
+import { useTrainingStore } from "./Training";
 
-export const useAuthStore = defineStore('auth', () => {
+export const useAuthStore = defineStore("auth", () => {
   const userInfo = ref({
-    nickname: '',
-    profileImageUrl: '',
-    email: '',
+    nickname: "",
+    profileImageUrl: "",
+    email: "",
     bodyInfoVal: false,
   });
+
+  const trainingStore = useTrainingStore();
 
   const isLoggedIn = ref(false);
   const loadingUser = ref(true);
@@ -29,7 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/signup`,
-        payload,
+        payload
       );
       return res.data;
     } catch (err) {
@@ -46,12 +49,13 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
         payload,
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       if (res.data.code === 0) {
         isLoggedIn.value = true;
         await fetchBasicUserInfo();
+        await trainingStore.fetchYoutubeAdminSync(); //app.vue에서 안불러와져서 여기에 작성함.
       }
       return res.data;
     } catch (err) {
@@ -85,7 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const res = await apiInstance.get(`/api/user/profile-image`);
-      console.log('사용자 정보 조회::', res);
+      console.log("사용자 정보 조회::", res);
       if (res.data.code === 0) {
         const userData = res.data.data;
         userInfo.value = {
@@ -110,10 +114,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Access Token 재발급 및 사용자 정보 재조회 시도(리프레시 토큰)('/api/auth/refresh')
   async function refreshAccessToken() {
-    const res = await apiInstance.post('/api/auth/refresh');
+    const res = await apiInstance.post("/api/auth/refresh");
 
     if (res.data.code !== 0) {
-      throw new Error('Refresh Failed');
+      throw new Error("Refresh Failed");
     }
   }
 
@@ -123,7 +127,7 @@ export const useAuthStore = defineStore('auth', () => {
     const userStore = useUserStore();
     try {
       const res = await apiInstance.get(`/api/user/profile-info`);
-      console.log('사용자 정보 조회::', res);
+      console.log("사용자 정보 조회::", res);
 
       if (res.data.code === 0) {
         const userData = res.data.data;
@@ -135,7 +139,7 @@ export const useAuthStore = defineStore('auth', () => {
           email: userData.email,
           bodyInfoVal: userData.bodyInfoVal,
         };
-        console.log('fetchbodyinfo:', userData.bodyInfoVal, bodyInfoVal);
+        console.log("fetchbodyinfo:", userData.bodyInfoVal, bodyInfoVal);
         // UserStore에 신체 정보 저장
         userStore.setHealthInfoFromFetch(userData);
         isLoggedIn.value = true;
@@ -155,23 +159,23 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/password-reset/request`,
         { email: email },
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       if (res.status === 200) {
         return {
           success: true,
           message:
-            '비밀번호 재설정 메일이 발송되었습니다. 메일함을 확인해주세요.',
+            "비밀번호 재설정 메일이 발송되었습니다. 메일함을 확인해주세요.",
         };
       }
     } catch (err) {
-      console.error('비밀번호 재설정 요청 중 오류 발생:', err);
+      console.error("비밀번호 재설정 요청 중 오류 발생:", err);
       const errorMessage =
-        err.response?.data?.msg || '네트워크 오류로 메일 발송에 실패했습니다.';
+        err.response?.data?.msg || "네트워크 오류로 메일 발송에 실패했습니다.";
 
       throw {
-        status: err.response?.status || 'Network Error',
+        status: err.response?.status || "Network Error",
         message: errorMessage,
       };
     }
@@ -182,7 +186,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/auth/password-reset/validate`,
-        { params: { token: token } },
+        { params: { token: token } }
       );
       return res;
     } catch (err) {
@@ -196,7 +200,7 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/password-reset/confirm`,
         payload,
-        { withCredentials: true },
+        { withCredentials: true }
       );
       return res.data;
     } catch (err) {
@@ -210,12 +214,12 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/logout`,
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
       resetAuthState();
-      router.push({ name: 'login' });
+      router.push({ name: "login" });
     } catch (err) {
-      console.log('로그아웃에 실패했습니다!');
+      console.log("로그아웃에 실패했습니다!");
     }
   }
 
@@ -226,17 +230,17 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/user/signout`,
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       if (res.data.code === 0) {
         userStore.setHealthInfoFromFetch({});
         resetAuthState();
         alert(res.data.msg);
-        router.push({ name: 'login' });
+        router.push({ name: "login" });
       }
     } catch (err) {
-      console.log('회원탈퇴에 실패했습니다!');
+      console.log("회원탈퇴에 실패했습니다!");
     }
   }
 

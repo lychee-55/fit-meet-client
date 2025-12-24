@@ -1,17 +1,30 @@
 <script setup>
-import AppHeader from '@/components/common/Header.vue';
-import { ref, onMounted } from 'vue';
-import MobileSidebar from './components/common/MobileSidebar.vue';
-import { useTrainingStore } from './stores/Training';
+import AppHeader from "@/components/common/Header.vue";
+import { ref, onMounted } from "vue";
+import MobileSidebar from "./components/common/MobileSidebar.vue";
+import { useTrainingStore } from "./stores/Training";
+import { useAuthStore } from "./stores/Auth"; // 사용자의 로그인 상태를 알 수 있는 스토어
 
 const trainingStore = useTrainingStore();
+const authStore = useAuthStore(); // 추가
 
 const isSidebarOpen = ref(false);
 
 onMounted(async () => {
-  // 개발 환경에서만 수동 싱크 실행 (배포 후에는 주석 처리하거나 조건문 사용)
-  if (import.meta.env.MODE === 'development') {
-    await trainingStore.fetchYoutubeAdminSync();
+  // 1. 개발 환경인지 확인
+  const isDev = import.meta.env.MODE === "development";
+
+  // 2. 로그인 상태인지 확인 (인증 토큰이 있는지 등)
+  // authStore.isAuthenticated는 예시입니다. 실제 스토어 상태에 맞게 수정하세요.
+  const isLoggedIn =
+    authStore.isAuthenticated || localStorage.getItem("ACCESS_TOKEN");
+
+  if (isDev && isLoggedIn) {
+    try {
+      await trainingStore.fetchYoutubeAdminSync();
+    } catch (error) {
+      console.warn("로그인은 되어있으나 싱크 권한이 없습니다(관리자 아님).");
+    }
   }
 });
 </script>

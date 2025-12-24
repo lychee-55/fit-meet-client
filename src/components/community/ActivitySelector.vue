@@ -94,11 +94,11 @@
       >
         <button
           v-for="video in todayCompletedVideos"
-          :key="video.id"
+          :key="video.id || video.videoId"
           type="button"
-          @click="toggleWorkout(video.id)"
+          @click="toggleWorkout(video.id || video.videoId)"
           :class="
-            (selectedWorkoutIds || []).includes(video.id)
+            (selectedWorkoutIds || []).includes(video.id || video.videoId)
               ? 'border-[#8A8F6E] bg-olive-50 ring-1 ring-[#8A8F6E]'
               : 'border-gray-50 bg-gray-50 hover:bg-gray-100'
           "

@@ -145,6 +145,7 @@
 import { onMounted } from "vue";
 import { useTrainingStore } from "@/stores/Training";
 import VideoCardList from "./VideoCardList.vue";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
 
 const store = useTrainingStore();
 
@@ -154,7 +155,7 @@ onMounted(() => {
 
 const updateFilter = (key, val) => {
   store.filters[key] = val;
-  store.filters.page = 0; // 필터 변경 시 첫 페이지부터 조회
+  store.filters.page = 0;
   store.fetchVideos();
 };
 </script>

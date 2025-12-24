@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+  <div
+    @click="$emit('open-detail', post.id)"
+    class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+  >
     <div class="flex justify-between items-start mb-3">
       <div class="flex gap-3">
         <img
@@ -32,8 +35,8 @@
         {{ post.contentPreview }}
       </p>
       <img
-        v-if="post.imageUrl"
-        :src="post.imageUrl"
+        v-if="post.postImageUrl"
+        :src="post.postImageUrl"
         class="w-full h-64 object-cover rounded-xl border border-gray-50"
       />
     </div>
@@ -41,7 +44,7 @@
     <div class="flex justify-between items-center pt-3 border-t border-gray-50">
       <div class="flex gap-4">
         <button
-          @click="store.toggleLike(post.id, post.likedByMe)"
+          @click.stop="store.toggleLike(post.id, post.likedByMe)"
           class="flex items-center gap-1.5 group"
         >
           <HeartIcon
@@ -54,37 +57,47 @@
           />
           <span class="text-sm font-medium">{{ post.likeCount }}</span>
         </button>
-        <button @click="toggleComments" class="flex items-center gap-1.5 group">
+
+        <button
+          @click.stop="toggleComments"
+          class="flex items-center gap-1.5 group"
+        >
           <ChatBubbleLeftIcon
             class="w-5 h-5 text-gray-400 group-hover:text-blue-400"
           />
           <span class="text-sm font-medium">{{ post.commentCount }}</span>
         </button>
       </div>
+
       <div class="text-xs text-gray-400 flex items-center gap-1">
         <EyeIcon class="w-4 h-4" /> {{ post.viewCount }}
       </div>
     </div>
 
-    <CommentSection v-if="showComments" :postId="post.id" />
+    <div v-if="showComments" @click.stop class="mt-4">
+      <CommentSection :postId="post.id" />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useCommunityStore } from '@/stores/Community';
+import { ref, computed } from "vue";
+import { useCommunityStore } from "@/stores/Community";
 import {
   HeartIcon,
   ChatBubbleLeftIcon,
   EyeIcon,
-} from '@heroicons/vue/24/outline';
-import CommentSection from './CommentSection.vue';
+} from "@heroicons/vue/24/outline";
+import CommentSection from "./CommentSection.vue";
 
-const props = defineProps(['post']);
+// defineProps와 defineEmits 정의
+const props = defineProps(["post"]);
+const emit = defineEmits(["open-detail"]);
+
 const store = useCommunityStore();
 const showComments = ref(false);
 
 const isMobile = computed(() => window.innerWidth < 640);
 const toggleComments = () => (showComments.value = !showComments.value);
-const formatDate = date => new Date(date).toLocaleDateString();
+const formatDate = (date) => new Date(date).toLocaleDateString();
 </script>
