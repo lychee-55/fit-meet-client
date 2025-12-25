@@ -105,7 +105,7 @@
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/Auth';
 import { useUserStore } from '@/stores/User'; // useUserStore 임포트
-import defaultProfileImg from '@/assets/profile.png';
+import defaultProfileImg from '@/assets/profile.jpg';
 
 // ------------------ Store & 데이터 참조 ------------------
 const authStore = useAuthStore();

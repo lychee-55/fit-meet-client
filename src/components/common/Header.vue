@@ -13,9 +13,9 @@
             class="text-2xl font-bold text-blue-600 select-none transition-transform hover:scale-105"
           >
             <img
-              src="@/assets/FitmeetLogo.png"
+              src="@/assets/FitmeetLogo3.png"
               alt="로고"
-              class="w-18 md:w-18"
+              class="w-24 md:w-24"
             />
           </RouterLink>
         </div>
@@ -92,11 +92,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import { Bars3Icon } from "@heroicons/vue/24/outline";
-import { useAuthStore } from "@/stores/Auth";
-import UserDropdown from "@/components/common/UserDropdown.vue";
-import MobileSidebar from "@/components/common/MobileSidebar.vue";
+import { ref, onMounted, onUnmounted } from 'vue';
+import { Bars3Icon } from '@heroicons/vue/24/outline';
+import { useAuthStore } from '@/stores/Auth';
+import UserDropdown from '@/components/common/UserDropdown.vue';
+import MobileSidebar from '@/components/common/MobileSidebar.vue';
 
 const authStore = useAuthStore();
 const open = ref(false);
@@ -115,8 +115,8 @@ const handleScroll = () => {
   lastScrollPosition = currentScroll;
 };
 
-onMounted(() => window.addEventListener("scroll", handleScroll));
-onUnmounted(() => window.removeEventListener("scroll", handleScroll));
+onMounted(() => window.addEventListener('scroll', handleScroll));
+onUnmounted(() => window.removeEventListener('scroll', handleScroll));
 </script>
 
 <style scoped>

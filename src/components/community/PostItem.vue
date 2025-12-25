@@ -6,7 +6,7 @@
     <div class="flex justify-between items-start mb-3">
       <div class="flex gap-3">
         <img
-          :src="post.writerProfileImageUrl || '/default-profile.png'"
+          :src="post.writerProfileImageUrl || '@/assets/profile.jpg'"
           class="w-12 h-12 rounded-full object-cover shadow-sm"
         />
         <div>
@@ -81,23 +81,23 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useCommunityStore } from "@/stores/Community";
+import { ref, computed } from 'vue';
+import { useCommunityStore } from '@/stores/Community';
 import {
   HeartIcon,
   ChatBubbleLeftIcon,
   EyeIcon,
-} from "@heroicons/vue/24/outline";
-import CommentSection from "./CommentSection.vue";
+} from '@heroicons/vue/24/outline';
+import CommentSection from './CommentSection.vue';
 
 // defineProps와 defineEmits 정의
-const props = defineProps(["post"]);
-const emit = defineEmits(["open-detail"]);
+const props = defineProps(['post']);
+const emit = defineEmits(['open-detail']);
 
 const store = useCommunityStore();
 const showComments = ref(false);
 
 const isMobile = computed(() => window.innerWidth < 640);
 const toggleComments = () => (showComments.value = !showComments.value);
-const formatDate = (date) => new Date(date).toLocaleDateString();
+const formatDate = date => new Date(date).toLocaleDateString();
 </script>

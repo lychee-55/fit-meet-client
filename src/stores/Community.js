@@ -1,8 +1,8 @@
-import { ref, reactive } from "vue";
-import { defineStore } from "pinia";
-import apiInstance from "@/api/axios";
+import { ref, reactive } from 'vue';
+import { defineStore } from 'pinia';
+import apiInstance from '@/api/axios';
 
-export const useCommunityStore = defineStore("community", () => {
+export const useCommunityStore = defineStore('community', () => {
   const posts = ref([]);
   const currentPost = ref(null); // 상세 조회용
   const comments = ref([]);
@@ -12,38 +12,20 @@ export const useCommunityStore = defineStore("community", () => {
   const loading = ref(false);
   const myPosts = ref([]);
   const likedPosts = ref([]);
+  const deletedPosts = ref([]);
   const hasNext = ref(true);
 
   // 검색/필터링 상태
   const filters = reactive({
-    keyword: "",
-    tag: "",
-    category: "",
-    sort: "POPULAR",
+    keyword: '',
+    tag: '',
+    category: '',
+    sort: 'POPULAR',
     page: 0,
     size: 10,
   });
 
   // 게시글 목록 조회 (GET /api/community) 무한스크롤링 전
-  //   const fetchPosts = async () => {
-  //     loading.value = true;
-  //     try {
-  //       console.log(filters);
-  //       const { data } = await apiInstance.get("/api/community/posts", {
-  //         params: filters,
-  //       });
-  //       console.log(data);
-  //       if (data.code === 0) {
-  //         posts.value = data.data.content || [];
-  //         totalPages.value = data.data.totalPages;
-  //         totalElements.value = data.data.totalElements;
-  //       }
-  //     } catch (error) {
-  //       console.error("목록 조회 실패", error);
-  //     } finally {
-  //       loading.value = false;
-  //     }
-  //   };
   const fetchPosts = async (isReset = false) => {
     if (loading.value) return; // 중복 요청 방지
 
@@ -56,7 +38,7 @@ export const useCommunityStore = defineStore("community", () => {
 
     loading.value = true;
     try {
-      const { data } = await apiInstance.get("/api/community/posts", {
+      const { data } = await apiInstance.get('/api/community/posts', {
         params: filters,
       });
 
@@ -71,14 +53,14 @@ export const useCommunityStore = defineStore("community", () => {
         if (hasNext.value) filters.page++;
       }
     } catch (error) {
-      console.error("목록 조회 실패", error);
+      console.error('목록 조회 실패', error);
     } finally {
       loading.value = false;
     }
   };
 
   // 게시글 상세 조회 (GET /api/community/{postId})
-  const fetchPostDetail = async (postId) => {
+  const fetchPostDetail = async postId => {
     loading.value = true;
     try {
       const { data } = await apiInstance.get(`/api/community/${postId}`);
@@ -87,21 +69,21 @@ export const useCommunityStore = defineStore("community", () => {
         return data.data;
       }
     } catch (error) {
-      console.error("상세 조회 실패", error);
+      console.error('상세 조회 실패', error);
     } finally {
       loading.value = false;
     }
   };
 
   // 게시글 작성 (POST /api/community) - Multipart 처리 필요 시 대응 가능하게 설계
-  const createPost = async (formData) => {
+  const createPost = async formData => {
     try {
-      const { data } = await apiInstance.post("/api/community", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const { data } = await apiInstance.post('/api/community', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return data;
     } catch (error) {
-      console.error("게시글 작성 실패", error);
+      console.error('게시글 작성 실패', error);
       throw error;
     }
   };
@@ -109,30 +91,28 @@ export const useCommunityStore = defineStore("community", () => {
   // 게시글 수정 (PUT /api/community/{postId})
   const updatePost = async (postId, formData) => {
     try {
-      console.log(postId, formData);
       const { data } = await apiInstance.put(
         `/api/community/${postId}`,
-        formData
+        formData,
       );
-      console.log(data);
       return data;
     } catch (error) {
-      console.error("게시글 수정 실패", error);
+      console.error('게시글 수정 실패', error);
       throw error;
     }
   };
 
   // 게시글 삭제 (DELETE /api/community/{postId})
-  const deletePost = async (postId) => {
+  const deletePost = async postId => {
     try {
       const { data } = await apiInstance.delete(`/api/community/${postId}`);
       if (data.code === 0) {
         // posts.value = posts.value.filter((p) => p.id !== postId);
-        myPosts.value = myPosts.value.filter((p) => p.id !== postId);
+        myPosts.value = myPosts.value.filter(p => p.id !== postId);
       }
       return data;
     } catch (error) {
-      console.error("게시글 삭제 실패", error);
+      console.error('게시글 삭제 실패', error);
     }
   };
 
@@ -145,7 +125,7 @@ export const useCommunityStore = defineStore("community", () => {
         await apiInstance.post(`/api/community/${postId}/like`);
       }
       // 목록 데이터 실시간 업데이트 (UI 반영)
-      const post = posts.value.find((p) => p.id === postId);
+      const post = posts.value.find(p => p.id === postId);
       if (post) {
         post.likedByMe = !isLiked;
         post.likeCount += isLiked ? -1 : 1;
@@ -156,23 +136,22 @@ export const useCommunityStore = defineStore("community", () => {
         currentPost.value.likeCount += isLiked ? -1 : 1;
       }
     } catch (error) {
-      console.error("좋아요 처리 실패", error);
+      console.error('좋아요 처리 실패', error);
     }
   };
 
   // 댓글 목록 조회 (GET /api/community/{postId}/comments)
-  const fetchComments = async (postId) => {
+  const fetchComments = async postId => {
     try {
       const { data } = await apiInstance.get(
-        `/api/community/${postId}/comments`
+        `/api/community/${postId}/comments`,
       );
       if (data.code === 0) {
         comments.value = data.data;
-        console.log(comments.value);
         return data.data;
       }
     } catch (error) {
-      console.error("댓글 조회 실패", error);
+      console.error('댓글 조회 실패', error);
     }
   };
 
@@ -184,14 +163,14 @@ export const useCommunityStore = defineStore("community", () => {
         {
           content,
           parentId,
-        }
+        },
       );
       if (data.code === 0) {
         await fetchComments(postId); // 댓글 목록 갱신
       }
       return data.data;
     } catch (error) {
-      console.error("댓글 등록 실패", error);
+      console.error('댓글 등록 실패', error);
     }
   };
 
@@ -199,27 +178,27 @@ export const useCommunityStore = defineStore("community", () => {
   const deleteComment = async (postId, commentId) => {
     try {
       const { data } = await apiInstance.delete(
-        `/api/community/comments/${commentId}`
+        `/api/community/comments/${commentId}`,
       );
       if (data.code === 0) {
         await fetchComments(postId);
       }
     } catch (error) {
-      console.error("댓글 삭제 실패", error);
+      console.error('댓글 삭제 실패', error);
     }
   };
 
   // 인기 태그 조회 (GET /api/community/tags/top)
   const fetchTopTags = async (limit = 10) => {
     try {
-      const { data } = await apiInstance.get("/api/community/tags/top", {
+      const { data } = await apiInstance.get('/api/community/tags/top', {
         params: { limit },
       });
       if (data.code === 0) {
-        allTags.value = data.data.map((tag) => tag.name);
+        allTags.value = data.data.map(tag => tag.name);
       }
     } catch (error) {
-      console.error("인기 태그 조회 실패", error);
+      console.error('인기 태그 조회 실패', error);
     }
   };
 
@@ -227,13 +206,13 @@ export const useCommunityStore = defineStore("community", () => {
   const fetchMyPosts = async () => {
     loading.value = true;
     try {
-      const response = await apiInstance.get("/api/community/posts/me", {
+      const response = await apiInstance.get('/api/community/posts/me', {
         params: { page: 0, size: 50 },
       });
       // 스웨거 응답 구조: response.data.data.content
       myPosts.value = response.data.data.content;
     } catch (error) {
-      console.error("내 게시글 로드 실패:", error);
+      console.error('내 게시글 로드 실패:', error);
     } finally {
       loading.value = false;
     }
@@ -243,14 +222,54 @@ export const useCommunityStore = defineStore("community", () => {
   const fetchLikedPosts = async () => {
     loading.value = true;
     try {
-      const response = await apiInstance.get("/api/community/likes/me", {
+      const response = await apiInstance.get('/api/community/likes/me', {
         params: { page: 0, size: 50 },
       });
       likedPosts.value = response.data.data.content;
     } catch (error) {
-      console.error("좋아요 게시글 로드 실패:", error);
+      console.error('좋아요 게시글 로드 실패:', error);
     } finally {
       loading.value = false;
+    }
+  };
+
+  const fetchDeletedPosts = async (page = 0, size = 20) => {
+    loading.value = true;
+    try {
+      const { data } = await apiInstance.get(
+        '/api/community/posts/me/deleted',
+        {
+          params: { page, size },
+        },
+      );
+
+      if (data.code === 0) {
+        // 응답 데이터 구조에 맞춰 deletedPosts 업데이트
+        deletedPosts.value = data.data.content || [];
+        return data.data; // 페이지네이션 정보가 필요할 수 있으므로 반환
+      }
+    } catch (error) {
+      console.error('삭제된 게시글 목록 조회 실패:', error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const restorePost = async postId => {
+    try {
+      const { data } = await apiInstance.put(
+        `/api/community/${postId}/restore`,
+      );
+      if (data.code === 0) {
+        // 복원 성공 시 삭제 목록에서 제거
+        deletedPosts.value = deletedPosts.value.filter(p => p.id !== postId);
+        // 내 게시글 목록 갱신을 위해 다시 불러오기 권장
+        await fetchMyPosts();
+      }
+      return data;
+    } catch (error) {
+      console.error('게시글 복원 실패:', error);
+      throw error;
     }
   };
 
@@ -277,6 +296,7 @@ export const useCommunityStore = defineStore("community", () => {
     loading,
     myPosts,
     likedPosts,
+    deletedPosts,
     hasNext,
     fetchPosts,
     fetchPostDetail,
@@ -290,5 +310,7 @@ export const useCommunityStore = defineStore("community", () => {
     fetchTopTags,
     fetchMyPosts,
     fetchLikedPosts,
+    fetchDeletedPosts,
+    restorePost,
   };
 });

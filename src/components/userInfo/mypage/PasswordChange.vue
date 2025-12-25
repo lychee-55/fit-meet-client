@@ -76,9 +76,9 @@ const isFormValid = computed(() => {
   );
 });
 
-watch([isPasswordValid, isMatch], ([newValid, newMatch]) => {
-  // console.log(`[Parent Watch] isPasswordValid: ${newValid}, isMatch: ${newMatch}`);
-});
+// watch([isPasswordValid, isMatch], ([newValid, newMatch]) => {
+//   // console.log(`[Parent Watch] isPasswordValid: ${newValid}, isMatch: ${newMatch}`);
+// });
 
 // 비밀번호 변경
 const handleChangePassword = async () => {
@@ -96,7 +96,6 @@ const handleChangePassword = async () => {
       currentPassword: currentPassword.value,
       newPassword: newPassword.value,
     });
-    console.log('비밀번호 재설정중 에러::', res);
     if (res.code === 0) {
       alert(res.msg);
       currentPassword.value = '';

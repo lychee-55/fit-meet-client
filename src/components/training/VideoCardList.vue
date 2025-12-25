@@ -123,12 +123,10 @@ const formatDuration = sec => {
 
 // 버튼 핸들러 (부모 컴포넌트나 Store에 요청을 보내도록 emit 처리 권장)
 const handleLike = async id => {
-  console.log('좋아요 클릭:', id);
   await store.toggleVideoLike(id);
 };
 
 const handleComplete = async id => {
-  console.log('오늘의 운동 완료 클릭:', id);
   await store.toggleVideoComplete(id);
 };
 </script>

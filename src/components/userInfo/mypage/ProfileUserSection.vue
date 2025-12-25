@@ -72,7 +72,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useAuthStore } from '@/stores/Auth';
-import defaultProfileImg from '@/assets/profile.png';
+import defaultProfileImg from '@/assets/profile.jpg';
 
 const authStore = useAuthStore();
 

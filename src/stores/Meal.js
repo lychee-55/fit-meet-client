@@ -19,7 +19,6 @@ export const useMealStore = defineStore('meal', () => {
     searchResults.value = [];
     searched.value = false;
     isLoading.value = false;
-    console.log('MealStore: 검색 데이터가 초기화되었습니다.');
   }
 
   /**

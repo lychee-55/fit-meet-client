@@ -4,7 +4,7 @@
       <div class="px-0 sm:px-10 flex flex-col h-full">
         <header class="flex flex-col gap-2 mb-3 shrink-0">
           <h2 class="text-2xl font-extrabold text-gray-800 text-center">
-            {{ isEditMode ? "식단 수정하기" : "식단 작성하기" }}
+            {{ isEditMode ? '식단 수정하기' : '식단 작성하기' }}
           </h2>
           <p class="text-center text-base text-[#8A8F6E] font-semibold">
             Step {{ step }} / {{ components.length }} :
@@ -62,7 +62,7 @@
               >
                 <template v-if="isSubmitting">처리 중...</template>
                 <template v-else>{{
-                  isEditMode ? "식단 수정 완료" : "식단 등록 완료"
+                  isEditMode ? '식단 수정 완료' : '식단 등록 완료'
                 }}</template>
               </button>
             </div>
@@ -74,23 +74,23 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, markRaw, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/vue/24/outline";
+import { ref, reactive, computed, markRaw, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/vue/24/outline';
 
-import BasicInfoForm from "./BasicInfoForm.vue";
-import ManualFoodInput from "./ManualFoodInput.vue";
-import MealFoodLayout from "./MealFoodLayout.vue";
-import FinalReviewForm from "./FinalReviewForm.vue";
-import AIImageAnalysisForm from "./AIImageAnalysisForm.vue";
-import { useDietStore } from "@/stores/Diet";
-import { useMealStore } from "@/stores/Meal";
+import BasicInfoForm from './BasicInfoForm.vue';
+import ManualFoodInput from './ManualFoodInput.vue';
+import MealFoodLayout from './MealFoodLayout.vue';
+import FinalReviewForm from './FinalReviewForm.vue';
+import AIImageAnalysisForm from './AIImageAnalysisForm.vue';
+import { useDietStore } from '@/stores/Diet';
+import { useMealStore } from '@/stores/Meal';
 
 // 3개의 식단 업로드 모드 지정
 const MODE_TO_SOURCE_TYPE = {
-  manual: "MANUAL",
-  "public-api": "PUBLIC-API",
-  image: "IMAGE",
+  manual: 'MANUAL',
+  'public-api': 'PUBLIC-API',
+  image: 'IMAGE',
 };
 
 const props = defineProps({
@@ -120,12 +120,12 @@ const formKey = ref(0);
 
 const formData = reactive({
   date: new Date(),
-  mealType: "A",
-  description: "",
-  imageUrl: "",
+  mealType: 'A',
+  description: '',
+  imageUrl: '',
   isPublic: false,
   // sourceType: props.mode === 'manual' ? 'MANUAL' : 'PUBLIC-API',
-  sourceType: MODE_TO_SOURCE_TYPE[props.mode] || "MANUAL",
+  sourceType: MODE_TO_SOURCE_TYPE[props.mode] || 'MANUAL',
   foods: [],
 });
 
@@ -143,11 +143,11 @@ onMounted(async () => {
           imageUrl: detail.imageUrl,
           isPublic: detail.isPublic,
           sourceType: detail.sourceType,
-          foods: detail.foods.map((f) => ({ ...f })),
+          foods: detail.foods.map(f => ({ ...f })),
         });
       }
     } catch (error) {
-      alert("데이터 로드 실패");
+      alert('데이터 로드 실패');
     } finally {
       isSubmitting.value = false;
     }
@@ -161,32 +161,32 @@ function resetForm() {
   formKey.value++;
   Object.assign(formData, {
     date: new Date(),
-    mealType: "A",
-    description: "",
-    imageUrl: "",
+    mealType: 'A',
+    description: '',
+    imageUrl: '',
     isPublic: false,
     // sourceType: props.mode === 'manual' ? 'MANUAL' : 'PUBLIC-API',
-    sourceType: MODE_TO_SOURCE_TYPE[props.mode] || "MANUAL",
+    sourceType: MODE_TO_SOURCE_TYPE[props.mode] || 'MANUAL',
     foods: [],
   });
 }
 
-const updateFormData = (newFormData) => Object.assign(formData, newFormData);
+const updateFormData = newFormData => Object.assign(formData, newFormData);
 
 const components = computed(() => {
-  if (props.mode === "manual") {
+  if (props.mode === 'manual') {
     return [
       markRaw(BasicInfoForm),
       markRaw(ManualFoodInput),
       markRaw(FinalReviewForm),
     ];
-  } else if (props.mode === "public-api") {
+  } else if (props.mode === 'public-api') {
     return [
       markRaw(BasicInfoForm),
       markRaw(MealFoodLayout),
       markRaw(FinalReviewForm),
     ];
-  } else if (props.mode === "image") {
+  } else if (props.mode === 'image') {
     return [
       markRaw(BasicInfoForm),
       markRaw(AIImageAnalysisForm),
@@ -198,20 +198,20 @@ const components = computed(() => {
 
 const stepTitles = computed(() => {
   const modeMessages = {
-    manual: "음식 내용을 직접 기록해주세요",
-    "public-api": "음식을 검색하여 기록해주세요",
-    image: "AI 이미지 분석으로 기록해주세요",
+    manual: '음식 내용을 직접 기록해주세요',
+    'public-api': '음식을 검색하여 기록해주세요',
+    image: 'AI 이미지 분석으로 기록해주세요',
   };
   return [
-    "식사한 날짜와 시간을 입력해주세요",
-    modeMessages[props.mode] || "음식 정보를 입력해주세요", // 혹시 모를 예외 처리
-    "최종 확인 및 코멘트를 남겨주세요",
+    '식사한 날짜와 시간을 입력해주세요',
+    modeMessages[props.mode] || '음식 정보를 입력해주세요', // 혹시 모를 예외 처리
+    '최종 확인 및 코멘트를 남겨주세요',
   ];
 });
 
 const currentComponent = computed(() => components.value[step.value - 1]);
 const progressBarWidth = computed(
-  () => `${(step.value / components.value.length) * 100}%`
+  () => `${(step.value / components.value.length) * 100}%`,
 );
 // const isCurrentStepValid = computed(() => {
 //   if (step.value === 2) return formData.foods.length > 0;
@@ -238,7 +238,7 @@ const isCurrentStepValid = computed(() => {
     const hasFoods = formData.foods.length > 0;
 
     // 이미지 모드일 때는 이미지도 반드시 있어야 하고, 분석해서 추가된 음식도 있어야 함
-    if (props.mode === "image") {
+    if (props.mode === 'image') {
       return hasFoods && !!formData.imageUrl;
     }
 
@@ -259,7 +259,7 @@ async function submitDiet() {
     imageUrl: formData.imageUrl || null,
     sourceType: formData.sourceType,
     isPublic: formData.isPublic,
-    foods: formData.foods.map((food) => ({
+    foods: formData.foods.map(food => ({
       foodNmKr: food.foodNmKr,
       foodCode: food.foodCode || null,
       sourceType: food.sourceType,
@@ -276,6 +276,7 @@ async function submitDiet() {
 
   try {
     let response;
+
     if (isEditMode.value) {
       // 수정 API 호출
       response = await dietStore.updateDiet(dietId.value, requestBody);
@@ -287,17 +288,17 @@ async function submitDiet() {
     if (response.code === 0) {
       alert(
         isEditMode.value
-          ? "식단이 수정되었습니다!"
-          : "식단 등록이 완료되었습니다!"
+          ? '식단이 수정되었습니다!'
+          : '식단 등록이 완료되었습니다!',
       );
       resetForm();
       mealStore.clearSearch();
-      router.push({ name: "DietManagement" });
+      router.push({ name: 'DietManagement' });
     } else {
-      throw new Error(response.msg || "서버 응답 오류");
+      throw new Error(response.msg || '서버 응답 오류');
     }
   } catch (error) {
-    console.error("처리 실패:", error);
+    console.error('처리 실패:', error);
     alert(`요청에 실패했습니다: ${error.message}`);
   } finally {
     isSubmitting.value = false;
@@ -308,8 +309,7 @@ function nextStep() {
   if (isCurrentStepValid.value && step.value < components.value.length)
     step.value++;
   else {
-    console.log("현재상태: ", formData);
-    alert("현재 단계를 먼저 완성해주세요.");
+    alert('현재 단계를 먼저 완성해주세요.');
   }
 }
 

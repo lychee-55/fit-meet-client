@@ -26,7 +26,7 @@
         <div class="flex items-center gap-3 px-4 py-4">
           <img
             :src="store.userInfo?.profileImageUrl || profileImg"
-            @error="(e) => (e.target.src = profileImg)"
+            @error="e => (e.target.src = profileImg)"
             class="w-10 h-10 rounded-full border border-[#D3A373] object-cover"
           />
           <div class="font-semibold text-sm truncate">
@@ -60,18 +60,18 @@
 import {
   Cog6ToothIcon,
   ArrowLeftStartOnRectangleIcon,
-} from "@heroicons/vue/24/outline";
-import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
-import { useAuthStore } from "@/stores/Auth";
-import profileImg from "@/assets/profile.png";
+} from '@heroicons/vue/24/outline';
+import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
+import { useAuthStore } from '@/stores/Auth';
+import profileImg from '@/assets/profile.jpg';
 
 const store = useAuthStore();
 const visible = ref(false);
 const dropdownRef = ref(null);
 const dropdownStyle = reactive({
-  top: "0px",
-  left: "0px",
-  width: "192px", // w-48 대응
+  top: '0px',
+  left: '0px',
+  width: '192px', // w-48 대응
 });
 let closeTimeout = null;
 
@@ -112,24 +112,24 @@ const logout = () => {
   close();
 };
 
-const handleClickOutside = (e) => {
+const handleClickOutside = e => {
   if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
     // Teleport된 드롭다운 자체를 클릭한 경우도 체크해야 할 수도 있음
-    const dropdownEl = document.querySelector(".fixed.bg-white.shadow-xl");
+    const dropdownEl = document.querySelector('.fixed.bg-white.shadow-xl');
     if (dropdownEl && dropdownEl.contains(e.target)) return;
     close();
   }
 };
 
 onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-  window.addEventListener("scroll", updatePosition);
-  window.addEventListener("resize", updatePosition);
+  document.addEventListener('click', handleClickOutside);
+  window.addEventListener('scroll', updatePosition);
+  window.addEventListener('resize', updatePosition);
 });
 
 onBeforeUnmount(() => {
-  document.removeEventListener("click", handleClickOutside);
-  window.removeEventListener("scroll", updatePosition);
-  window.removeEventListener("resize", updatePosition);
+  document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('scroll', updatePosition);
+  window.removeEventListener('resize', updatePosition);
 });
 </script>

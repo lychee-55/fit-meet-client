@@ -71,30 +71,11 @@
 <script setup>
 import { ref } from 'vue';
 import DietFilterPanel from '@/components/diet/DietFilterPanel.vue';
-
-// 임시 데이터 (실제는 API 호출)
-const diets = ref([
-  {
-    id: 1,
-    date: '2025-12-14',
-    time: '아침',
-    calories: 550,
-    score: 92,
-    notes: '닭가슴살 샐러드와 사과',
-  },
-  // ...
-]);
-
 const filteredDiets = ref(diets.value);
 
-const applyFilter = filterParams => {
-  // API 호출 또는 로컬 필터링 로직 구현
-  console.log('필터 적용:', filterParams);
-  // filteredDiets.value = ...
-};
+const applyFilter = filterParams => {};
 
 const resetFilter = () => {
-  // 필터 초기화 로직
   filteredDiets.value = diets.value;
 };
 </script>

@@ -81,7 +81,6 @@ const submitLogin = async () => {
       email: email.value,
       password: password.value,
     });
-    console.log('로그인 콘솔::', res);
     if (res.code === 0) {
       alert('로그인 성공!');
       router.push({ name: 'dashBoard' });
@@ -99,7 +98,6 @@ const submitLogin = async () => {
     }
   } catch (err) {
     if (err.response) {
-      console.error('에러가 뭐야', err);
     }
     emailMsg.value = '서버 오류가 발생했습니다.';
   }

@@ -153,20 +153,17 @@
 
 <script setup>
 import { ref, computed, watch, defineProps, defineEmits } from 'vue';
-import { useDietStore } from '@/stores/Diet'; // 💡 diet store import
+import { useDietStore } from '@/stores/Diet';
 import { useModalStore } from '@/stores/modal';
 import FoodSearcher from './FoodSearcher.vue';
 
-// --- Props & Emits ---
 const props = defineProps({
-  initialData: Object, // 수정 시 기존 데이터
+  initialData: Object,
 });
 const emit = defineEmits(['close', 'saved']);
 
-// --- Store & State ---
 const dietStore = useDietStore();
 const modalStore = useModalStore();
-// const isOpen = ref(false);
 
 const form = ref({
   id: null,
@@ -176,7 +173,7 @@ const form = ref({
   imageUrl: '',
   sourceType: 'MANUAL',
   isPublic: true,
-  foods: [], // DietFoodRequest[] 배열
+  foods: [],
 });
 
 // --- Computed ---
@@ -188,9 +185,7 @@ const isFormValid = computed(() => {
 // 섭취량 기준으로 칼로리를 계산하는 함수 (UI 표시용)
 const calculateKcal = food => {
   if (food.intakeGram <= 0 || !food.kcal) return 0;
-  // FoodSearcher에서 가져온 food.kcal은 기준량(baseAmountG)당 값이라고 가정합니다.
-  // 여기서는 baseAmountG가 100g이라고 가정하고 계산합니다.
-  const baseAmountG = food.intakeGram; // FoodSearcher에서 intakeGram에 baseAmountG가 초기값으로 설정됨
+  const baseAmountG = food.intakeGram;
   return (food.kcal / 100) * food.intakeGram;
 };
 
@@ -201,9 +196,6 @@ const totalKcal = computed(() => {
   }, 0);
 });
 
-// --- Watcher (Initial Data Load) ---
-// Watcher를 수정합니다. 모달이 열릴 때마다 form을 초기화하는 역할을 담당합니다.
-// 💡 Watcher를 modalStore.isWriteModalOpen을 감시하도록 변경합니다.
 watch(
   () => modalStore.isWriteModalOpen,
   isOpenNow => {
@@ -212,7 +204,6 @@ watch(
 
       if (newData) {
         // 수정 모드 로직
-        // ... (수정 데이터 로드 로직)
       } else {
         // 등록 모드 초기화
         form.value = {
@@ -228,14 +219,11 @@ watch(
       }
     }
   },
-  { immediate: true }, // 최초 로드시 실행하여 form을 초기화
+  { immediate: true },
 );
 
-// --- Methods ---
 const close = () => {
-  // 💡 Pinia 스토어 액션을 호출합니다. (부모의 @close="modalStore.closeWriteModal"과 동일)
   modalStore.closeWriteModal();
-  // emit('close') 대신 Pinia 스토어를 직접 사용하는 것이 깔끔합니다.
 };
 
 const addFoodToDiet = selectedFood => {
@@ -248,7 +236,6 @@ const removeFood = index => {
 
 /**
  * 식단 등록/수정 요청
- * - 백엔드 DietCreateRequest 스키마에 맞게 foods 배열을 변환합니다.
  */
 const handleSubmit = async () => {
   if (!isFormValid.value) {
@@ -292,9 +279,7 @@ const handleSubmit = async () => {
 
   try {
     if (isEditing.value) {
-      // 수정 로직 호출 (dietStore에 updateDiet 액션 구현 필요)
-      // await dietStore.updateDiet(form.value.id, payload);
-      console.log('🍽️ 식단 수정 요청 페이로드:', payload);
+      // 수정 로직 호출
       alert('식단 수정 로직 실행 (더미)');
     } else {
       // 등록 로직 호출

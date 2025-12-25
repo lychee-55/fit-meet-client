@@ -53,10 +53,7 @@
                 { id: 'OLDEST', n: '오래된순' },
               ]"
               :key="s.id"
-              @click="
-                store.filters.sort = s.id;
-                store.fetchPosts();
-              "
+              @click="handleSearchfilter(s.id)"
               class="pb-2 px-1 text-sm font-bold transition-all relative"
               :class="
                 store.filters.sort === s.id ? 'text-[#8A8F6E]' : 'text-gray-400'
@@ -133,8 +130,10 @@
               </button>
             </div>
           </div>
+
+          <hr class="text-gray-300" />
           <div
-            class="bg-white rounded-[24px] shadow-sm border border-gray-100 sticky top-48 overflow-hidden"
+            class="bg-white rounded-3xl shadow-sm border border-gray-100 sticky top-48 overflow-hidden"
           >
             <router-link to="/community/my-page?tab=myposts">
               <div class="px-5 py-4 bg-gray-50/50 border-b border-gray-100">
@@ -143,6 +142,7 @@
                 >
                   <UserCircleIcon class="w-5 h-5 text-[#8A8F6E]" />
                   나의 커뮤니티
+                  <ArrowUpRightIcon class="w-3 h-3" />
                 </h3>
               </div>
             </router-link>
@@ -201,20 +201,23 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from "vue";
-import { useCommunityStore } from "@/stores/Community";
+import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { useCommunityStore } from '@/stores/Community';
 import {
   MagnifyingGlassIcon,
   HashtagIcon,
   UserCircleIcon,
   ArrowUpRightIcon,
-} from "@heroicons/vue/24/outline";
-import PostItem from "@/components/community/PostItem.vue";
-import GoToTopBtn from "@/components/common/GoToTopBtn.vue";
-import NavBar from "@/components/community/NavBar.vue";
-import PostItemDetailModal from "@/components/community/PostItemDetailModal.vue";
-import { storeToRefs } from "pinia";
-import { useRoute, useRouter } from "vue-router";
+  PencilSquareIcon,
+  ChevronRightIcon,
+  HeartIcon,
+} from '@heroicons/vue/24/outline';
+import PostItem from '@/components/community/PostItem.vue';
+import GoToTopBtn from '@/components/common/GoToTopBtn.vue';
+import NavBar from '@/components/community/NavBar.vue';
+import PostItemDetailModal from '@/components/community/PostItemDetailModal.vue';
+import { storeToRefs } from 'pinia';
+import { useRoute, useRouter } from 'vue-router';
 
 const store = useCommunityStore();
 const route = useRoute();
@@ -225,21 +228,21 @@ let lastScrollPosition = 0;
 const isModalOpen = ref(false);
 const selectedPostId = ref(null);
 
-const handleOpenDetail = (id) => {
+const handleOpenDetail = id => {
   router.push(`/community/post/${id}`);
   // push를 하면 URL이 바뀌고, 아래 watch가 이를 감지해서 모달을 엽니다.
 };
 
 // 2. 모달을 닫을 때 URL을 다시 원래대로 (/community) 변경
 const handleCloseModal = () => {
-  router.push("/community");
+  router.push('/community');
   // 혹은 router.back() 을 써도 되지만, 안전하게 목록 주소를 쓰는 것이 좋습니다.
 };
 
 // 3. 핵심: URL의 변화를 감시해서 모달을 열고 닫음
 watch(
   () => route.params.id,
-  (newId) => {
+  newId => {
     if (newId) {
       selectedPostId.value = newId;
       isModalOpen.value = true;
@@ -248,7 +251,7 @@ watch(
       isModalOpen.value = false;
     }
   },
-  { immediate: true } // 페이지 진입 시 URL에 id가 있다면 바로 모달을 띄움
+  { immediate: true }, // 페이지 진입 시 URL에 id가 있다면 바로 모달을 띄움
 );
 
 const handleScroll = () => {
@@ -271,13 +274,13 @@ const initObserver = () => {
   if (observer) observer.disconnect();
 
   observer = new IntersectionObserver(
-    async (entries) => {
+    async entries => {
       // 1. 요소가 화면에 보이고 2. 로딩 중이 아니며 3. 다음 페이지가 있을 때만 요청
       if (entries[0].isIntersecting && !store.loading && store.hasNext) {
         await store.fetchPosts(false); // 기존 데이터 뒤에 추가
       }
     },
-    { threshold: 0.1 }
+    { threshold: 0.1 },
   );
 
   if (loadMoreTrigger.value) observer.observe(loadMoreTrigger.value);
@@ -288,18 +291,36 @@ const handleSearch = async () => {
   await store.fetchPosts(true);
 };
 
+const handleSearchfilter = async id => {
+  store.filters.sort = id;
+  await store.fetchPosts(true);
+};
+
 onMounted(async () => {
   await store.fetchPosts(true); // 첫 로딩 시 리셋 모드
   await store.fetchTopTags();
   initObserver(); // 관찰 시작
-  window.addEventListener("scroll", handleScroll);
+  window.addEventListener('scroll', handleScroll);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("scroll", handleScroll);
+  window.removeEventListener('scroll', handleScroll);
   if (observer) observer.disconnect();
 });
 // onUnmounted(() => window.removeEventListener("scroll", handleScroll));
+const handleTagClick = async tag => {
+  if (store.filters.tag === tag) {
+    store.filters.tag = null;
+  } else {
+    store.filters.tag = tag;
+  }
+
+  try {
+    await store.fetchPosts(true);
+  } catch (err) {
+    console.error('태그 필터링 실패:', err);
+  }
+};
 </script>
 
 <style scoped>

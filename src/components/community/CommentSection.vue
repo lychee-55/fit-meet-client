@@ -8,7 +8,7 @@
       >
         <div class="flex gap-3">
           <img
-            :src="comment.writerProfileImageUrl || '/default-profile.png'"
+            :src="comment.writerProfileImageUrl || '@/assets/profile.jpg'"
             class="w-8 h-8 rounded-full shadow-sm object-cover"
           />
           <div class="flex-1">
@@ -54,7 +54,7 @@
             </div>
             <div class="flex gap-3 flex-1">
               <img
-                :src="reply.writerProfileImageUrl || '/default-profile.png'"
+                :src="reply.writerProfileImageUrl || '@/assets/profile.jpg'"
                 class="w-6 h-6 rounded-full shadow-sm object-cover"
               />
               <div
@@ -93,7 +93,7 @@
       :class="{ 'mt-6': !mode }"
     >
       <img
-        :src="authStore.userInfo?.profileImageUrl || '/default-profile.png'"
+        :src="authStore.userInfo?.profileImageUrl || '@/assets/profile.jpg'"
         class="w-8 h-8 rounded-full mb-1 shadow-sm object-cover"
       />
       <div class="flex-1 relative group">
@@ -133,28 +133,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick, watch } from "vue";
-import { useCommunityStore } from "@/stores/Community";
-import { useAuthStore } from "@/stores/Auth";
-import { PaperAirplaneIcon } from "@heroicons/vue/24/solid";
-import { ArrowTurnDownRightIcon } from "@heroicons/vue/24/outline";
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
+import { useCommunityStore } from '@/stores/Community';
+import { useAuthStore } from '@/stores/Auth';
+import { PaperAirplaneIcon } from '@heroicons/vue/24/solid';
+import { ArrowTurnDownRightIcon } from '@heroicons/vue/24/outline';
 
-const props = defineProps(["postId", "mode"]);
-const emit = defineEmits(["comment-success", "reply-request"]);
+const props = defineProps(['postId', 'mode']);
+const emit = defineEmits(['comment-success', 'reply-request']);
 
 const store = useCommunityStore();
 const authStore = useAuthStore();
 
-const newComment = ref("");
+const newComment = ref('');
 const replyingTo = ref(null);
 const badgeWidth = ref(0);
 const rawComments = ref([]);
 const commentInput = ref(null);
 
-watch(replyingTo, async (newVal) => {
+watch(replyingTo, async newVal => {
   if (newVal) {
     await nextTick();
-    const badge = document.getElementById("reply-badge");
+    const badge = document.getElementById('reply-badge');
     if (badge) badgeWidth.value = badge.offsetWidth + 16;
   } else {
     badgeWidth.value = 0;
@@ -162,14 +162,14 @@ watch(replyingTo, async (newVal) => {
 });
 
 // 핵심: 답글 버튼 클릭 시 동작
-const handleReplyClick = (comment) => {
+const handleReplyClick = comment => {
   // 1. 단일 모드(PostItem)일 경우: 직접 내부 상태 변경
   if (!props.mode) {
     replyingTo.value = comment;
     nextTick(() => commentInput.value?.focus());
   }
   // 2. 분리 모드(Modal)일 경우: 부모에게 알려서 입력창 컴포넌트로 전달하게 함
-  emit("reply-request", comment);
+  emit('reply-request', comment);
 };
 
 const loadComments = async () => {
@@ -178,7 +178,7 @@ const loadComments = async () => {
 };
 
 // 모달에서 하단 입력창을 강제 제어할 때 사용
-const setReplyExternally = (comment) => {
+const setReplyExternally = comment => {
   replyingTo.value = comment;
   nextTick(() => commentInput.value?.focus());
 };
@@ -193,39 +193,39 @@ const handleCommentSubmit = async () => {
   const result = await store.addComment(
     props.postId,
     newComment.value,
-    parentId
+    parentId,
   );
   if (result) {
-    newComment.value = "";
+    newComment.value = '';
     replyingTo.value = null;
-    emit("comment-success");
+    emit('comment-success');
     await loadComments();
   }
 };
 
-const handleDelete = async (commentId) => {
-  if (!confirm("댓글을 삭제하시겠습니까?")) return;
+const handleDelete = async commentId => {
+  if (!confirm('댓글을 삭제하시겠습니까?')) return;
   await store.deleteComment(props.postId, commentId);
-  emit("comment-success");
+  emit('comment-success');
   await loadComments();
 };
 
 const formattedComments = computed(() => {
   const map = {};
   const roots = [];
-  rawComments.value.forEach((c) => (map[c.id] = { ...c, children: [] }));
-  rawComments.value.forEach((c) => {
+  rawComments.value.forEach(c => (map[c.id] = { ...c, children: [] }));
+  rawComments.value.forEach(c => {
     if (c.parentId && map[c.parentId]) map[c.parentId].children.push(map[c.id]);
     else roots.push(map[c.id]);
   });
   return roots;
 });
 
-const formatTime = (date) => {
-  if (!date) return "";
+const formatTime = date => {
+  if (!date) return '';
   return new Date(date).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
   });
 };
 

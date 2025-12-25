@@ -4,15 +4,18 @@
     @click.self="$emit('close')"
   >
     <div
-      class="bg-white w-full max-w-5xl h-[92vh] md:h-[90vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row relative"
+      class="bg-white w-full rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row relative transition-all duration-300"
+      :class="[
+        post?.postImageUrl
+          ? 'max-w-5xl h-[92vh] md:h-[90vh]'
+          : 'max-w-3xl h-auto max-h-[85vh]',
+      ]"
     >
       <div
-        class="w-full lg:w-3/5 bg-black flex items-center justify-center relative shrink-0 min-h-[30vh] lg:h-full"
+        v-if="post?.postImageUrl"
+        class="w-full lg:w-3/5 bg-black flex items-center justify-center relative min-h-[30vh] lg:h-full"
       >
-        <img
-          :src="post?.postImageUrl || '/default-post.png'"
-          class="w-full h-full object-contain"
-        />
+        <img :src="post.postImageUrl" class="w-full h-full object-contain" />
         <button
           @click="$emit('close')"
           class="lg:hidden absolute top-4 right-4 bg-black/40 p-2 rounded-full text-white backdrop-blur-md z-30"
@@ -22,14 +25,14 @@
       </div>
 
       <div
-        class="w-full lg:w-2/5 flex flex-col flex-1 min-h-0 bg-white relative"
+        class="flex flex-col flex-1 min-h-0 min-w-0 lg:min-w-[400px] bg-white relative"
       >
         <div
           class="shrink-0 p-4 border-b border-gray-100 flex items-center justify-between bg-white z-20"
         >
           <div class="flex items-center gap-3">
             <img
-              :src="post?.writerProfileImageUrl || '/default-profile.png'"
+              :src="post?.writerProfileImageUrl || '@/assets/profile.jpg'"
               class="w-9 h-9 rounded-full border border-gray-100 object-cover"
             />
             <div>
@@ -41,9 +44,11 @@
               </p>
             </div>
           </div>
+
           <button
             @click="$emit('close')"
-            class="hidden lg:block text-gray-400 hover:text-gray-600 transition-colors"
+            class="text-gray-400 hover:text-gray-600 transition-colors"
+            :class="{ 'hidden lg:block': post?.postImageUrl }"
           >
             <XMarkIcon class="w-7 h-7" />
           </button>
@@ -121,16 +126,16 @@
                   :key="diet.dietId"
                   class="flex items-center gap-3 p-2 bg-white border border-gray-100 rounded-2xl shadow-sm"
                 >
-                  <img
+                  <!-- <img
                     :src="diet.imageUrl || '/default-diet.png'"
                     class="w-14 h-14 rounded-xl object-cover bg-gray-50"
-                  />
+                  /> -->
                   <div class="flex-1 min-w-0">
                     <p class="text-[10px] font-bold text-[#8A8F6E]">
                       {{ getMealLabel(diet.mealType) }}
                     </p>
                     <p class="text-xs font-bold text-gray-800 truncate">
-                      {{ diet.description || "기록된 식단" }}
+                      {{ diet.description || '기록된 식단' }}
                     </p>
                     <p class="text-[10px] text-gray-400">
                       {{ diet.totalKcal }}kcal | 단 {{ diet.totalProtein }}g
@@ -216,7 +221,9 @@
           </div>
         </div>
 
-        <div class="shrink-0 p-4 border-t border-gray-100 bg-white pb-safe">
+        <div
+          class="shrink-0 p-4 mb-4 border-t border-gray-100 bg-white pb-safe"
+        >
           <CommentSection
             ref="commentInputRef"
             :post-id="props.postId"
@@ -230,8 +237,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
-import { useCommunityStore } from "@/stores/Community";
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { useCommunityStore } from '@/stores/Community';
 import {
   XMarkIcon,
   HeartIcon,
@@ -240,21 +247,20 @@ import {
   CalendarIcon,
   PlayIcon,
   PlayCircleIcon,
-} from "@heroicons/vue/24/solid";
-import CommentSection from "./CommentSection.vue";
+} from '@heroicons/vue/24/solid';
+import CommentSection from './CommentSection.vue';
 
 const props = defineProps({
   postId: { type: [Number, String], required: true },
 });
-const emit = defineEmits(["close"]);
+const emit = defineEmits(['close']);
 const store = useCommunityStore();
 const post = ref(null);
 
 const commentListRef = ref(null);
 const commentInputRef = ref(null);
 
-// ★ 핵심: 목록에서 답글 클릭 시 하단 입력창에 데이터 전달
-const handleReplyRequest = (comment) => {
+const handleReplyRequest = comment => {
   if (commentInputRef.value) {
     commentInputRef.value.setReplyExternally(comment);
   }
@@ -278,27 +284,45 @@ const handleLikeToggle = async () => {
   await store.toggleLike(post.value.id, !isAdding);
 };
 
-const getMealLabel = (type) => {
-  const map = { A: "아침", B: "점심", C: "저녁", D: "간식", E: "야식" };
+const getMealLabel = type => {
+  const map = { A: '아침', B: '점심', C: '저녁', D: '간식', E: '야식' };
   return map[type] || type;
 };
 
-const formatDate = (dateStr) => {
-  if (!dateStr) return "";
+const formatDate = dateStr => {
+  if (!dateStr) return '';
   const date = new Date(dateStr);
   return `${date.getMonth() + 1}월 ${date.getDate()}일`;
 };
 
 const hasActivity = computed(
   () =>
-    post.value?.shareDiet || post.value?.shareWorkout || post.value?.shareStreak
+    post.value?.shareDiet ||
+    post.value?.shareWorkout ||
+    post.value?.shareStreak,
 );
 
 onMounted(() => {
   loadPostDetail();
-  document.body.style.overflow = "hidden";
+  document.body.style.overflow = 'hidden';
 });
 onUnmounted(() => {
-  document.body.style.overflow = "auto";
+  document.body.style.overflow = 'auto';
 });
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+</style>

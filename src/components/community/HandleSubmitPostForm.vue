@@ -75,11 +75,11 @@
             class="w-5 h-5 accent-[#8A8F6E]"
           />
           <span class="text-sm font-medium text-gray-700">{{
-            opt === "shareDiet"
-              ? "식단 공유"
-              : opt === "shareStreak"
-              ? "스트릭 공유"
-              : "운동 공유"
+            opt === 'shareDiet'
+              ? '식단 공유'
+              : opt === 'shareStreak'
+              ? '스트릭 공유'
+              : '운동 공유'
           }}</span>
         </label>
       </div>
@@ -102,26 +102,25 @@
       :disabled="isLoading"
       class="w-full bg-[#8A8F6E] text-white font-bold py-4 rounded-2xl hover:bg-[#767a5d] transition-all disabled:bg-gray-300"
     >
-      {{ isLoading ? "처리 중..." : isEditMode ? "수정하기" : "등록하기" }}
+      {{ isLoading ? '처리 중...' : isEditMode ? '수정하기' : '등록하기' }}
     </button>
   </form>
 </template>
 
 <script setup>
-import { reactive, computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useCommunityStore } from "@/stores/Community";
-import { useDietStore } from "@/stores/Diet";
-import { useTrainingStore } from "@/stores/Training";
-import { useDashboardStore } from "@/stores/Dashboard";
-import ImageUpload from "./ImageUpload.vue";
-import TagInput from "./TagInput.vue";
-import ActivitySelector from "./ActivitySelector.vue";
-import { storeToRefs } from "pinia";
+import { reactive, computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useCommunityStore } from '@/stores/Community';
+import { useDietStore } from '@/stores/Diet';
+import { useTrainingStore } from '@/stores/Training';
+import { useDashboardStore } from '@/stores/Dashboard';
+import ImageUpload from './ImageUpload.vue';
+import TagInput from './TagInput.vue';
+import ActivitySelector from './ActivitySelector.vue';
+import { storeToRefs } from 'pinia';
 
-// const props = defineProps({ mode: String, postId: String });
 const props = defineProps({
-  mode: { type: String, default: "create" }, // 'create' or 'edit'
+  mode: { type: String, default: 'create' },
   postId: { type: String, default: null },
 });
 const router = useRouter();
@@ -130,23 +129,23 @@ const dietStore = useDietStore();
 const trainingStore = useTrainingStore();
 const dashboardStore = useDashboardStore();
 const todayDiets = ref([]);
-const isEditMode = computed(() => props.mode === "edit");
+const isEditMode = computed(() => props.mode === 'edit');
 const isLoading = ref(false);
 
 const postData = reactive({
-  title: "",
-  content: "",
-  category: "GENERAL",
+  title: '',
+  content: '',
+  category: 'GENERAL',
   tags: [],
   image: null,
   imagePreview: null,
-  activityDate: new Date().toISOString().split("T")[0],
+  activityDate: new Date().toISOString().split('T')[0],
   shareDiet: false,
   shareStreak: false,
   shareWorkout: false,
-  dietNote: "",
+  dietNote: '',
   dietIds: [],
-  workoutNote: "",
+  workoutNote: '',
   workoutVideoIds: [],
 });
 
@@ -161,19 +160,18 @@ const initEditData = async () => {
       postData.content = data.content;
       postData.category = data.category;
       postData.tags = [...data.tags];
-      postData.imagePreview = data.postImageUrl; // 기존 이미지 보여주기
+      postData.imagePreview = data.postImageUrl;
       postData.activityDate = data.activityDate;
       postData.shareDiet = data.shareDiet;
       postData.shareStreak = data.shareStreak;
       postData.shareWorkout = data.shareWorkout;
-      postData.dietNote = data.dietNote || "";
-      postData.workoutNote = data.workoutNote || "";
+      postData.dietNote = data.dietNote || '';
+      postData.workoutNote = data.workoutNote || '';
 
-      // 활동 ID들 매핑 (서버 DTO 구조에 따라 조정 필요)
       postData.dietIds = data.dietIds || [];
       postData.workoutVideoIds = data.workoutVideoIds || [];
     } catch (error) {
-      alert("데이터를 불러오는데 실패했습니다.");
+      alert('데이터를 불러오는데 실패했습니다.');
       router.back();
     } finally {
       isLoading.value = false;
@@ -186,10 +184,10 @@ onMounted(() => {
 });
 
 // 날짜 포맷 함수 (에러 방지용)
-const formatDateToString = (d) => {
+const formatDateToString = d => {
   const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 };
 
@@ -197,11 +195,10 @@ const formatDateToString = (d) => {
 const filteredRecentDiets = computed(() => {
   const allDiets = [];
   if (dietStore.dailyDietMap) {
-    Object.values(dietStore.dailyDietMap).forEach((list) => {
+    Object.values(dietStore.dailyDietMap).forEach(list => {
       if (Array.isArray(list)) {
-        // ✨ 여기서 isPublic이 true인 식단만 골라냅니다.
         const publicOnly = list.filter(
-          (diet) => diet.isPublic === true || diet.public === true
+          diet => diet.isPublic === true || diet.public === true,
         );
         allDiets.push(...publicOnly);
       }
@@ -229,7 +226,7 @@ watch(
     if (workoutOn) {
       await trainingStore.fetchTodayCompletedVideos();
     }
-  }
+  },
 );
 
 const handleImageChange = ({ file, preview }) => {
@@ -237,38 +234,37 @@ const handleImageChange = ({ file, preview }) => {
   postData.imagePreview = preview;
 };
 
-// 태그 추가 로직 ✨
-const addTag = (newTag) => {
-  // 중복 태그 방지 및 최대 개수 제한(선택)
+// 태그 추가 로직
+const addTag = newTag => {
   if (!postData.tags.includes(newTag)) {
     if (postData.tags.length < 10) {
       postData.tags.push(newTag);
     } else {
-      alert("태그는 최대 10개까지 등록 가능합니다.");
+      alert('태그는 최대 10개까지 등록 가능합니다.');
     }
   }
 };
 
-const removeTag = (index) => {
+const removeTag = index => {
   postData.tags.splice(index, 1);
 };
 
 // 제출 로직 (분기 처리)
 const handleSubmit = async () => {
   if (isEditMode.value && !props.postId) {
-    return alert("수정할 게시글 정보를 찾을 수 없습니다.");
+    return alert('수정할 게시글 정보를 찾을 수 없습니다.');
   }
   if (!postData.title.trim() || !postData.content.trim())
-    return alert("필수 항목을 채워주세요.");
+    return alert('필수 항목을 채워주세요.');
 
   isLoading.value = true;
   const formData = new FormData();
 
   // 이미지가 새로 선택된 경우에만 append
   if (postData.image instanceof File) {
-    formData.append("image", postData.image);
+    formData.append('image', postData.image);
   } else {
-    formData.append("image", "");
+    formData.append('image', '');
   }
 
   const requestDto = {
@@ -287,26 +283,22 @@ const handleSubmit = async () => {
   };
 
   formData.append(
-    "data",
-    new Blob([JSON.stringify(requestDto)], { type: "application/json" })
+    'data',
+    new Blob([JSON.stringify(requestDto)], { type: 'application/json' }),
   );
-
-  for (let [key, value] of formData.entries()) {
-    console.log(`${key}:`, value);
-  }
 
   try {
     if (isEditMode.value) {
       await communityStore.updatePost(props.postId, formData);
-      alert("게시글이 수정되었습니다!");
+      alert('게시글이 수정되었습니다!');
     } else {
       await communityStore.createPost(formData);
-      alert("게시글이 등록되었습니다!");
+      alert('게시글이 등록되었습니다!');
     }
-    router.push("/community");
+    router.push('/community');
   } catch (error) {
     console.error(error);
-    alert(`${isEditMode.value ? "수정" : "등록"} 중 오류가 발생했습니다.`);
+    alert(`${isEditMode.value ? '수정' : '등록'} 중 오류가 발생했습니다.`);
   } finally {
     isLoading.value = false;
   }

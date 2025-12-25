@@ -248,7 +248,6 @@ const handleFileChange = event => {
   const file = event.target.files[0];
   if (file) {
     profileFile.value = file;
-    // 미리보기 URL 생성
     previewUrl.value = URL.createObjectURL(file);
   } else {
     profileFile.value = null;
@@ -274,7 +273,6 @@ const checkEmail = async () => {
 
   const result = await store.checkEmail(email.value);
 
-  console.log('이메일 중복확인:: ', result);
   if (result.available) {
     emailStatus.value = 'success';
     emailMsg.value = '사용 가능한 이메일입니다 :)';
@@ -289,7 +287,6 @@ const checkEmail = async () => {
 
 // 회원가입
 const submitSignup = async () => {
-  // 모든 필수 필드 공백 검사
   if (
     !email.value ||
     !userName.value ||
@@ -299,7 +296,7 @@ const submitSignup = async () => {
   ) {
     formMsgStatus.value = 'error';
     formMsg.value = '모든 필수 정보를 입력해주세요.';
-    return; // 즉시 제출 중단
+    return;
   }
 
   // 이메일 중복 확인 여부 체크

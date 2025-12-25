@@ -119,7 +119,7 @@ import {
   UserGroupIcon,
 } from '@heroicons/vue/24/outline';
 import { useAuthStore } from '@/stores/Auth';
-import profileImg from '@/assets/profile.png';
+import profileImg from '@/assets/profile.jpg';
 import { watch } from 'vue';
 
 const props = defineProps({

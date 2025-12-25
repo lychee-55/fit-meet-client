@@ -5,7 +5,7 @@
     >
       <div class="flex flex-col md:flex-row items-center gap-6">
         <img
-          :src="authStore.userInfo.profileImageUrl || '@/assets/profile.png'"
+          :src="authStore.userInfo.profileImageUrl || '@/assets/profile.jpg'"
           class="w-24 h-24 rounded-full object-cover border-4 border-[#8A8F6E]/10 shadow-sm"
         />
         <div class="flex-1 text-center md:text-left">
@@ -36,99 +36,114 @@
       </div>
     </div>
 
-    <div class="flex gap-4 mb-6 border-b border-gray-100">
+    <div
+      class="flex items-center justify-between mb-6 border-b border-gray-100"
+    >
+      <div class="flex gap-4 overflow-x-auto">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          @click="handleTabChange(tab.id)"
+          :class="[
+            currentTab === tab.id
+              ? 'text-gray-900 border-b-2 border-[#8A8F6E]'
+              : 'text-gray-400',
+            'pb-3 px-2 font-bold transition-all whitespace-nowrap',
+          ]"
+        >
+          {{ tab.label }}
+          <span
+            v-if="tab.id === 'deleted'"
+            class="ml-1 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded-full"
+          >
+            {{ (deletedPosts || []).length }}
+          </span>
+        </button>
+      </div>
+
       <button
-        @click="handleTabChange('my')"
+        v-if="currentTab !== 'liked'"
+        @click="isEditMode = !isEditMode"
+        class="mb-2 px-4 py-1.5 rounded-full text-xs font-bold transition-colors"
         :class="
-          currentTab === 'my'
-            ? 'text-gray-900 border-b-2 border-[#8A8F6E]'
-            : 'text-gray-400'
+          isEditMode
+            ? 'bg-[#8A8F6E] text-white'
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
         "
-        class="pb-3 px-2 font-bold transition-all"
       >
-        내 게시글
-      </button>
-      <button
-        @click="handleTabChange('liked')"
-        :class="
-          currentTab === 'liked'
-            ? 'text-gray-900 border-b-2 border-[#8A8F6E]'
-            : 'text-gray-400'
-        "
-        class="pb-3 px-2 font-bold transition-all"
-      >
-        좋아요한 글
+        {{ isEditMode ? '완료' : '편집' }}
       </button>
     </div>
 
     <div
       v-if="displayPosts.length > 0"
-      class="grid grid-cols-2 md:grid-cols-3 gap-4"
+      class="grid grid-cols-2 md:grid-cols-3 gap-6"
     >
       <div
         v-for="post in displayPosts"
         :key="post.id"
-        class="group relative aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 cursor-pointer"
-        @click="handleOpenDetail(post.id)"
+        class="flex flex-col group"
       >
-        <img
-          v-if="post.postImageUrl"
-          :src="post.postImageUrl"
-          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
         <div
-          v-else
-          class="p-4 h-full flex items-center justify-center text-center bg-white"
+          class="relative aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 cursor-pointer shadow-sm"
+          @click="handleOpenDetail(post.id)"
         >
-          <p class="text-xs text-gray-500 line-clamp-4 leading-relaxed">
-            {{ post.contentPreview }}
-          </p>
-        </div>
-
-        <div
-          v-if="currentTab === 'my'"
-          class="absolute top-2 right-2 z-10"
-          @click.stop
-        >
-          <button
-            @click="activeMenuId = activeMenuId === post.id ? null : post.id"
-            class="p-1.5 bg-black/20 backdrop-blur-md rounded-lg text-white hover:bg-black/40 transition-colors"
+          <img
+            v-if="post.postImageUrl"
+            :src="post.postImageUrl"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            :class="{ 'grayscale opacity-60': currentTab === 'deleted' }"
+          />
+          <div
+            v-else
+            class="p-4 h-full flex items-center justify-center text-center bg-white"
           >
-            <EllipsisVerticalIcon class="w-5 h-5" />
-          </button>
+            <p class="text-xs text-gray-500 line-clamp-4 leading-relaxed">
+              {{ post.contentPreview }}
+            </p>
+          </div>
 
-          <transition name="fade">
-            <div
-              v-if="activeMenuId === post.id"
-              class="absolute right-0 mt-2 w-24 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden"
+          <div
+            class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white font-bold text-sm"
+          >
+            <span class="flex items-center gap-1"
+              ><HeartIcon class="w-4 h-4 fill-white" />
+              {{ post.likeCount }}</span
             >
-              <button
-                @click="handleEdit(post.id)"
-                class="w-full px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-              >
-                <PencilIcon class="w-3.5 h-3.5" /> 수정
-              </button>
-              <button
-                @click="handleDelete(post.id)"
-                class="w-full px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 flex items-center gap-2"
-              >
-                <TrashIcon class="w-3.5 h-3.5" /> 삭제
-              </button>
-            </div>
-          </transition>
+            <span class="flex items-center gap-1"
+              ><ChatBubbleLeftIcon class="w-4 h-4 fill-white" />
+              {{ post.commentCount }}</span
+            >
+          </div>
         </div>
 
-        <div
-          class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white font-bold text-sm"
-        >
-          <span class="flex items-center gap-1"
-            ><HeartIcon class="w-4 h-4 fill-white" /> {{ post.likeCount }}</span
-          >
-          <span class="flex items-center gap-1"
-            ><ChatBubbleLeftIcon class="w-4 h-4 fill-white" />
-            {{ post.commentCount }}</span
-          >
-        </div>
+        <transition name="slide-up">
+          <div v-if="isEditMode" class="mt-2 flex gap-1 animate-fade-in">
+            <template v-if="currentTab === 'my'">
+              <button
+                @click.stop="handleEdit(post.id)"
+                class="flex-1 py-2 bg-white border border-gray-200 rounded-xl text-[11px] font-bold text-gray-700 hover:bg-gray-50"
+              >
+                수정
+              </button>
+              <button
+                @click.stop="handleDelete(post.id)"
+                class="flex-1 py-2 bg-white border border-red-100 rounded-xl text-[11px] font-bold text-red-500 hover:bg-red-50"
+              >
+                삭제
+              </button>
+            </template>
+
+            <template v-else-if="currentTab === 'deleted'">
+              <button
+                @click.stop="handleRestore(post.id)"
+                class="flex-1 py-2 bg-[#8A8F6E] rounded-xl text-[11px] font-bold text-white hover:bg-[#7a7f62]"
+              >
+                복원하기
+              </button>
+            </template>
+          </div>
+        </transition>
       </div>
     </div>
 
@@ -149,103 +164,126 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { storeToRefs } from "pinia"; // 반응성 유지를 위해 필요
-import { useCommunityStore } from "@/stores/Community";
-import { useAuthStore } from "@/stores/Auth";
-import {
-  EllipsisVerticalIcon,
-  PencilIcon,
-  TrashIcon,
-  HeartIcon,
-  ChatBubbleLeftIcon,
-} from "@heroicons/vue/24/solid";
-import PostItemDetailModal from "@/components/community/PostItemDetailModal.vue";
-import NavBar from "@/components/community/NavBar.vue";
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useCommunityStore } from '@/stores/Community';
+import { useAuthStore } from '@/stores/Auth';
+import { HeartIcon, ChatBubbleLeftIcon } from '@heroicons/vue/24/solid';
+import PostItemDetailModal from '@/components/community/PostItemDetailModal.vue';
+import NavBar from '@/components/community/NavBar.vue';
 
 const store = useCommunityStore();
 const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
-const { myPosts, likedPosts, isLoading } = storeToRefs(store);
+const { myPosts, likedPosts, deletedPosts } = storeToRefs(store);
 
-const currentTab = ref("my");
-const activeMenuId = ref(null);
+const currentTab = ref('my');
+const isEditMode = ref(false); // [추가] 편집 모드 상태
 const isModalOpen = ref(false);
 const selectedPostId = ref(null);
 
-// 받은 총 좋아요 수 계산
+const tabs = [
+  { id: 'my', label: '내 게시글' },
+  { id: 'liked', label: '좋아요한 글' },
+  { id: 'deleted', label: '휴지통' },
+];
+
 const totalReceivedLikes = computed(() => {
-  return myPosts.value.reduce((acc, cur) => acc + (cur.likeCount || 0), 0);
+  return (myPosts.value || []).reduce(
+    (acc, cur) => acc + (cur.likeCount || 0),
+    0,
+  );
 });
 
-// 현재 탭에 따른 리스트 노출
 const displayPosts = computed(() => {
-  return currentTab.value === "my" ? myPosts.value : likedPosts.value;
+  if (currentTab.value === 'liked') return likedPosts.value || [];
+  if (currentTab.value === 'deleted') return deletedPosts.value || [];
+  return myPosts.value || [];
 });
 
-// 데이터 호출 및 탭 설정
 const initData = async () => {
   updateTabFromQuery();
-  // 두 데이터를 동시에 호출하여 성능 최적화
-  await Promise.all([store.fetchMyPosts(), store.fetchLikedPosts()]);
+  await Promise.all([
+    store.fetchMyPosts(),
+    store.fetchLikedPosts(),
+    store.fetchDeletedPosts(),
+  ]);
 };
 
-onMounted(() => {
-  initData();
-});
+onMounted(initData);
 
-// URL 쿼리 감시
+// 탭 변경 시 편집 모드 자동 해제
+watch(
+  () => currentTab.value,
+  () => {
+    isEditMode.value = false;
+  },
+);
+
 watch(
   () => route.query.tab,
   () => {
     updateTabFromQuery();
-  }
+  },
 );
 
 const updateTabFromQuery = () => {
   const tab = route.query.tab;
-  currentTab.value = tab === "liked" ? "liked" : "my";
+  if (tab === 'liked') currentTab.value = 'liked';
+  else if (tab === 'deleted') currentTab.value = 'deleted';
+  else currentTab.value = 'my';
 };
 
-const handleTabChange = (tabName) => {
-  const tabQuery = tabName === "my" ? "myposts" : "liked";
-  router.push({ query: { tab: tabQuery } });
+const handleTabChange = tabId => {
+  router.push({ query: { tab: tabId } });
 };
 
-// 삭제 핸들러 (Store의 액션 사용)
-const handleDelete = async (id) => {
-  if (confirm("정말 삭제하시겠습니까?")) {
+// 게시글 삭제 (소프트 삭제)
+const handleDelete = async id => {
+  if (confirm('정말 삭제하시겠습니까?')) {
     const success = await store.deletePost(id);
-    if (success) alert("삭제되었습니다.");
+    if (success) {
+      alert('삭제되었습니다.');
+      await store.fetchDeletedPosts(); // 휴지통 갱신
+    }
   }
-  activeMenuId.value = null;
 };
 
-const handleEdit = (postId) => {
-  // 방법 1: Params 방식 (권장)
+// 게시글 복원
+const handleRestore = async id => {
+  if (confirm('이 게시글을 복원하시겠습니까?')) {
+    try {
+      const response = await store.restorePost(id);
+      if (response.code === 0) {
+        alert('게시글이 성공적으로 복원되었습니다.');
+      }
+    } catch (error) {
+      alert('복원 실패: 다시 시도해 주세요.');
+    }
+  }
+};
+
+const handleEdit = postId => {
   router.push(`/community/form/edit/${postId}`);
-
-  // 방법 2: Query 방식 (만약 라우트를 따로 안 만들었다면)
-  // router.push(`/community/write?mode=edit&id=${postId}`);
 };
 
-// 상세 모달 열기
-const handleOpenDetail = (id) => {
+const handleOpenDetail = id => {
   selectedPostId.value = id;
   isModalOpen.value = true;
 };
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s;
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease;
 }
-.fade-enter-from,
-.fade-leave-to {
+.slide-up-enter-from,
+.slide-up-leave-to {
   opacity: 0;
+  transform: translateY(10px);
 }
 </style>

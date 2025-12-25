@@ -1,8 +1,8 @@
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import apiInstance from "@/api/axios";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import apiInstance from '@/api/axios';
 
-export const useDashboardStore = defineStore("dashboard", () => {
+export const useDashboardStore = defineStore('dashboard', () => {
   const todayNutrition = ref(null);
   const loading = ref(false);
 
@@ -18,12 +18,12 @@ export const useDashboardStore = defineStore("dashboard", () => {
   const fetchTodayNutrition = async () => {
     loading.value = true;
     try {
-      const response = await apiInstance.get("/api/dashboard/today-nutrition");
+      const response = await apiInstance.get('/api/dashboard/today-nutrition');
       if (response.data.code === 0) {
         todayNutrition.value = response.data.data;
       }
     } catch (error) {
-      console.error("오늘의 영양소 조회 실패:", error);
+      console.error('오늘의 영양소 조회 실패:', error);
       // throw error;
     } finally {
       loading.value = false;
@@ -32,16 +32,15 @@ export const useDashboardStore = defineStore("dashboard", () => {
 
   // 주간 점수 조회(/score-week)
   const fetchWeekScore = async (
-    endDate = new Date().toISOString().split("T")[0]
+    endDate = new Date().toISOString().split('T')[0],
   ) => {
-    console.log(endDate);
     try {
       const response = await apiInstance.get(`/api/dashboard/score-week`, {
         params: { endDate },
       });
       if (response.data.code === 0) weekScoreData.value = response.data.data;
     } catch (error) {
-      console.error("주간 점수 조회 실패:", error);
+      console.error('주간 점수 조회 실패:', error);
       // throw error;
     }
   };
@@ -49,16 +48,15 @@ export const useDashboardStore = defineStore("dashboard", () => {
   // 월간 점수 조회(/score-month)
   const fetchMonthScore = async (
     year = new Date().getFullYear(),
-    month = new Date().getMonth() + 1
+    month = new Date().getMonth() + 1,
   ) => {
     try {
       const response = await apiInstance.get(`/api/dashboard/score-month`, {
         params: { year, month },
       });
-      console.log(response);
       if (response.data.code === 0) monthScoreData.value = response.data.data;
     } catch (error) {
-      console.error("월간 점수 조회 실패:", error);
+      console.error('월간 점수 조회 실패:', error);
 
       // throw error;
     }
@@ -76,14 +74,8 @@ export const useDashboardStore = defineStore("dashboard", () => {
   });
 
   const fetchAiWeeklyAnalysis = async (
-    endDate = new Date().toISOString().split("T")[0]
+    endDate = new Date().toISOString().split('T')[0],
   ) => {
-    // [테스트용 캐싱] 이미 결과가 있다면 API 호출 없이 반환 (추후 삭제 가능)
-    // if (aiAnalysisResult.value) {
-    //   console.log(aiAnalysisResult.value);
-    //   return aiAnalysisResult.value;
-    // }
-
     loading.value = true;
     try {
       const response = await apiInstance.post(
@@ -91,14 +83,14 @@ export const useDashboardStore = defineStore("dashboard", () => {
         null,
         {
           params: { endDate },
-        }
+        },
       );
       if (response.data.code === 0) {
         aiAnalysisResult.value = response.data.data;
         return response.data.data;
       }
     } catch (error) {
-      console.error("AI 분석 실패:", error);
+      console.error('AI 분석 실패:', error);
       // throw error;
     } finally {
       loading.value = false;
@@ -127,16 +119,16 @@ export const useDashboardStore = defineStore("dashboard", () => {
       endDate.setDate(lastDayOfMonth.getDate() + (6 - lastDayOfMonth.getDay()));
 
       // 로컬 타임존을 유지하며 YYYY-MM-DD 형식으로 변환
-      const formatDate = (date) => {
+      const formatDate = date => {
         const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const d = String(date.getDate()).padStart(2, "0");
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
         return `${y}-${m}-${d}`;
       };
 
       const [streakRes, rangeRes] = await Promise.all([
-        apiInstance.get("/api/user-activity/diet/streak"),
-        apiInstance.get("/api/user-activity/diet/activity-range", {
+        apiInstance.get('/api/user-activity/diet/streak'),
+        apiInstance.get('/api/user-activity/diet/activity-range', {
           params: {
             startDate: formatDate(startDate),
             endDate: formatDate(endDate),
@@ -148,7 +140,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
       if (rangeRes.data.code === 0)
         activityDays.value = rangeRes.data.data.days;
     } catch (error) {
-      console.error("데이터 로딩 실패:", error);
+      console.error('데이터 로딩 실패:', error);
     } finally {
       loading.value = false;
     }

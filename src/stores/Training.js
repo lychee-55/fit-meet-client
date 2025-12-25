@@ -1,8 +1,8 @@
-import { ref, reactive } from "vue";
-import { defineStore } from "pinia";
-import apiInstance from "@/api/axios";
+import { ref, reactive } from 'vue';
+import { defineStore } from 'pinia';
+import apiInstance from '@/api/axios';
 
-export const useTrainingStore = defineStore("training", () => {
+export const useTrainingStore = defineStore('training', () => {
   // 상태 관리
   const videos = ref([]); // 전체 목록
   const recommendedVideos = ref([]); // 추천 목록
@@ -16,10 +16,10 @@ export const useTrainingStore = defineStore("training", () => {
 
   // 검색/필터링 상태 (GET /api/training/videos 전용)
   const filters = reactive({
-    category: "",
-    level: "",
+    category: '',
+    level: '',
     shortVideo: null,
-    sort: "LATEST",
+    sort: 'LATEST',
     page: 0,
     size: 12,
   });
@@ -32,16 +32,15 @@ export const useTrainingStore = defineStore("training", () => {
     loading.value = true;
     try {
       const { data } = await apiInstance.post(
-        "/api/admin/training/youtube/sync",
-        {}
+        '/api/admin/training/youtube/sync',
+        {},
       );
 
       if (data.code === 0) {
-        console.log(data.msg);
         isSync.value = true;
       }
     } catch (error) {
-      console.error("유투브 싱크 실패", error);
+      console.error('유투브 싱크 실패', error);
     } finally {
       loading.value = false;
     }
@@ -53,7 +52,7 @@ export const useTrainingStore = defineStore("training", () => {
     try {
       const params = { ...filters };
 
-      const { data } = await apiInstance.get("/api/training/videos", {
+      const { data } = await apiInstance.get('/api/training/videos', {
         params,
       });
 
@@ -64,13 +63,13 @@ export const useTrainingStore = defineStore("training", () => {
         totalElements.value = data.data.totalElements;
       }
     } catch (error) {
-      console.error("운동영상 목록 조회 실패", error);
+      console.error('운동영상 목록 조회 실패', error);
     } finally {
       loading.value = false;
     }
   };
 
-  const setPage = (newPage) => {
+  const setPage = newPage => {
     filters.page = newPage;
     fetchVideos(); // 페이지 변경 후 자동 재조회
   };
@@ -79,17 +78,16 @@ export const useTrainingStore = defineStore("training", () => {
   const fetchRecommendedVideos = async (category, limit) => {
     try {
       const { data } = await apiInstance.get(
-        "/api/training/videos/recommended",
+        '/api/training/videos/recommended',
         {
           params: { category, limit },
-        }
+        },
       );
       if (data.code === 0) {
         recommendedVideos.value = data.data;
-        console.log("스토어에 저장된 데이터:", recommendedVideos.value);
       }
     } catch (error) {
-      console.error("추천 영상 조회 실패", error);
+      console.error('추천 영상 조회 실패', error);
     }
   };
 
@@ -97,18 +95,18 @@ export const useTrainingStore = defineStore("training", () => {
   const fetchTodayCompletedVideos = async () => {
     try {
       const { data } = await apiInstance.get(
-        "/api/training/videos/history/today"
+        '/api/training/videos/history/today',
       );
       if (data.code === 0) {
         todayCompletedVideos.value = data.data;
       }
     } catch (error) {
-      console.error("오늘 완료 목록 조회 실패", error);
+      console.error('오늘 완료 목록 조회 실패', error);
     }
   };
 
   // 4. 운동영상 상세 조회 (GET /api/training/videos/{id})
-  const fetchVideoDetail = async (id) => {
+  const fetchVideoDetail = async id => {
     loading.value = true;
     try {
       const { data } = await apiInstance.get(`/api/training/videos/${id}`);
@@ -122,17 +120,17 @@ export const useTrainingStore = defineStore("training", () => {
         currentVideo.value = data.data;
       }
     } catch (error) {
-      console.error("영상 상세 조회 실패", error);
+      console.error('영상 상세 조회 실패', error);
     } finally {
       loading.value = false;
     }
   };
 
   // 5. 운동영상 좋아요 토글 (POST /api/training/videos/{id}/like)
-  const toggleVideoLike = async (id) => {
+  const toggleVideoLike = async id => {
     try {
       const { data } = await apiInstance.post(
-        `/api/training/videos/${id}/like`
+        `/api/training/videos/${id}/like`,
       );
       if (data.code === 0) {
         // 상세 페이지 상태 업데이트
@@ -142,8 +140,8 @@ export const useTrainingStore = defineStore("training", () => {
           currentVideo.value.likeCount += currentLikedStatus ? 1 : -1;
         }
         // 목록 상태 업데이트
-        const updateList = (list) => {
-          const video = list.find((v) => v.id === id);
+        const updateList = list => {
+          const video = list.find(v => v.id === id);
           if (video) {
             video.liked = currentLikedStatus;
             video.likeCount += currentLikedStatus ? 1 : -1;
@@ -155,19 +153,19 @@ export const useTrainingStore = defineStore("training", () => {
         updateList(todayCompletedVideos.value);
       }
     } catch (error) {
-      console.error("좋아요 토글 실패", error);
+      console.error('좋아요 토글 실패', error);
     }
   };
 
   // 6. 운동 영상 완료 토글 (POST /api/training/videos/{id}/complete)
   const toggleVideoComplete = async (
     id,
-    payload = { durationSec: 0, memo: "" }
+    payload = { durationSec: 0, memo: '' },
   ) => {
     try {
       const { data } = await apiInstance.post(
         `/api/training/videos/${id}/complete`,
-        payload
+        payload,
       );
       if (data.code === 0) {
         const currentCompleteStatus = data.data;
@@ -175,8 +173,8 @@ export const useTrainingStore = defineStore("training", () => {
         if (currentVideo.value && currentVideo.value.id === id) {
           currentVideo.value.completedToday = currentCompleteStatus;
         }
-        const updateList = (list) => {
-          const video = list.find((v) => v.id === id);
+        const updateList = list => {
+          const video = list.find(v => v.id === id);
           if (video) video.completedToday = currentCompleteStatus;
         };
 
@@ -186,7 +184,7 @@ export const useTrainingStore = defineStore("training", () => {
         await fetchTodayCompletedVideos();
       }
     } catch (error) {
-      console.error("완료 처리 실패", error);
+      console.error('완료 처리 실패', error);
     }
   };
 
@@ -195,7 +193,7 @@ export const useTrainingStore = defineStore("training", () => {
     try {
       const { data } = await apiInstance.post(
         `/api/training/videos/${id}/comments`,
-        { content }
+        { content },
       );
       if (data.code === 0) {
         // 작성 후 상세 정보를 다시 불러와 댓글 목록 갱신
@@ -203,7 +201,7 @@ export const useTrainingStore = defineStore("training", () => {
       }
       return data;
     } catch (error) {
-      console.error("댓글 작성 실패", error);
+      console.error('댓글 작성 실패', error);
     }
   };
 
@@ -211,14 +209,14 @@ export const useTrainingStore = defineStore("training", () => {
   const deleteVideoComment = async (videoId, commentId) => {
     try {
       const { data } = await apiInstance.delete(
-        `/api/training/videos/comments/${commentId}`
+        `/api/training/videos/comments/${commentId}`,
       );
       if (data.code === 0) {
         // 삭제 후 상세 정보 갱신
         await fetchVideoDetail(videoId);
       }
     } catch (error) {
-      console.error("댓글 삭제 실패", error);
+      console.error('댓글 삭제 실패', error);
     }
   };
 

@@ -38,7 +38,7 @@
             :disabled="userStore.loading"
             class="flex-1 py-4 mt-4 text-white text-base font-bold rounded-xl orange-bg-color hover:orange-bg-color transition shadow-lg disabled:bg-gray-400"
           >
-            {{ userStore.loading ? "저장 중..." : "수정 완료" }}
+            {{ userStore.loading ? '저장 중...' : '수정 완료' }}
           </button>
           <button
             type="button"
@@ -55,18 +55,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import { useAuthStore } from "@/stores/Auth";
-import { useUserStore } from "@/stores/User";
-import defaultProfileImg from "@/assets/profile.png";
-import ProfileBodySection from "./ProfileBodySection.vue";
-import ProfileUserSection from "./ProfileUserSection.vue";
+import { ref, computed, onMounted, watch } from 'vue';
+import { useAuthStore } from '@/stores/Auth';
+import { useUserStore } from '@/stores/User';
+import defaultProfileImg from '@/assets/profile.jpg';
+import ProfileBodySection from './ProfileBodySection.vue';
+import ProfileUserSection from './ProfileUserSection.vue';
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
 
 // ------------------ 로컬 상태 ------------------
-const nickname = ref(authStore.userInfo?.nickname || "");
+const nickname = ref(authStore.userInfo?.nickname || '');
 const formData = ref({ ...userStore.healthInfo });
 const originalFormData = ref(null);
 const isEditMode = ref(false);
@@ -74,17 +74,17 @@ const isEditMode = ref(false);
 const fileToUpload = ref(null);
 const currentPreviewUrl = ref(null);
 const currentProfileImage = computed(
-  () => authStore.userInfo?.profileImageUrl || null
+  () => authStore.userInfo?.profileImageUrl || null,
 );
 
-const formMsg = ref("");
-const formMsgStatus = ref("");
+const formMsg = ref('');
+const formMsgStatus = ref('');
 
 const loadInitialData = async () => {
   if (!userStore.healthInfo.height_cm) {
     await authStore.fetchAllUserInfo();
   }
-  nickname.value = authStore.userInfo?.nickname || "";
+  nickname.value = authStore.userInfo?.nickname || '';
   formData.value = { ...userStore.healthInfo };
   originalFormData.value = { ...formData.value, nickname: nickname.value };
 };
@@ -95,11 +95,11 @@ onMounted(async () => {
 
 watch(
   () => userStore.healthInfo,
-  (newHealthInfo) => {
+  newHealthInfo => {
     formData.value = { ...newHealthInfo };
     originalFormData.value = { ...formData.value, nickname: nickname.value };
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
 // 입력값 변경 시 에러 메시지 실시간 초기화
@@ -110,26 +110,26 @@ watch(
     formData.value.weight_kg,
     formData.value.gender,
   ],
-  (newValues) => {
+  newValues => {
     // 에러 상태일 때만 초기화 (성공 메시지는 유지하고 싶을 수 있으므로)
-    if (formMsgStatus.value === "error") {
+    if (formMsgStatus.value === 'error') {
       // 모든 필수 값이 존재한다면 메시지 삭제
       const hasAllRequired = newValues.every(
-        (v) => v !== null && v !== "" && v !== 0
+        v => v !== null && v !== '' && v !== 0,
       );
       if (hasAllRequired) {
-        formMsg.value = "";
-        formMsgStatus.value = "";
+        formMsg.value = '';
+        formMsgStatus.value = '';
       }
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // 수정 UI 토글 및 취소
 const startEditMode = () => {
   isEditMode.value = true;
-  formMsg.value = "";
+  formMsg.value = '';
   originalFormData.value = { ...formData.value, nickname: nickname.value };
 };
 
@@ -144,14 +144,14 @@ const cancelEditMode = () => {
 };
 
 //프로필 사진 삭제
-const handleFileChange = (event) => {
+const handleFileChange = event => {
   const file = event.target.files[0];
   if (file) {
     fileToUpload.value = file;
     currentPreviewUrl.value = URL.createObjectURL(file);
     formMsg.value =
       '사진이 선택되었습니다. "프로필 사진 저장" 버튼을 눌러주세요.';
-    formMsgStatus.value = "success";
+    formMsgStatus.value = 'success';
   }
 };
 
@@ -165,43 +165,43 @@ const deleteImage = async () => {
   ) {
     try {
       await userStore.deleteUserProfileImg();
-      formMsg.value = "프로필 이미지가 삭제되고 기본 이미지로 설정되었습니다.";
-      formMsgStatus.value = "success";
+      formMsg.value = '프로필 이미지가 삭제되고 기본 이미지로 설정되었습니다.';
+      formMsgStatus.value = 'success';
     } catch (error) {
-      formMsg.value = "이미지 삭제에 실패했습니다.";
-      formMsgStatus.value = "error";
+      formMsg.value = '이미지 삭제에 실패했습니다.';
+      formMsgStatus.value = 'error';
     }
   } else {
-    formMsg.value = "프로필 사진이 초기화되었습니다.";
-    formMsgStatus.value = "success";
+    formMsg.value = '프로필 사진이 초기화되었습니다.';
+    formMsgStatus.value = 'success';
   }
 };
 
 const uploadProfileImage = async () => {
-  formMsg.value = "";
+  formMsg.value = '';
   if (!fileToUpload.value) return;
 
   const formDataObj = new FormData();
-  formDataObj.append("profileImage", fileToUpload.value);
+  formDataObj.append('profileImage', fileToUpload.value);
 
   try {
     await userStore.updateUserProfileImg(formDataObj);
     fileToUpload.value = null;
     currentPreviewUrl.value = null;
-    formMsg.value = "프로필 이미지가 성공적으로 변경되었습니다.";
-    formMsgStatus.value = "success";
+    formMsg.value = '프로필 이미지가 성공적으로 변경되었습니다.';
+    formMsgStatus.value = 'success';
   } catch (error) {
-    formMsg.value = "이미지 업로드에 실패했습니다.";
-    formMsgStatus.value = "error";
+    formMsg.value = '이미지 업로드에 실패했습니다.';
+    formMsgStatus.value = 'error';
   }
 };
 
 const submitAllUpdates = async () => {
-  formMsg.value = "";
+  formMsg.value = '';
 
   if (!nickname.value.trim()) {
-    formMsg.value = "닉네임을 입력해주세요.";
-    formMsgStatus.value = "error";
+    formMsg.value = '닉네임을 입력해주세요.';
+    formMsgStatus.value = 'error';
     return;
   }
 
@@ -210,9 +210,9 @@ const submitAllUpdates = async () => {
     formData.value.weight_kg,
     formData.value.gender,
   ];
-  if (requiredFields.some((v) => v === null || v === "" || v === 0)) {
-    formMsg.value = "키, 체중, 성별은 필수 입력 항목입니다.";
-    formMsgStatus.value = "error";
+  if (requiredFields.some(v => v === null || v === '' || v === 0)) {
+    formMsg.value = '키, 체중, 성별은 필수 입력 항목입니다.';
+    formMsgStatus.value = 'error';
     return;
   }
 
@@ -227,24 +227,24 @@ const submitAllUpdates = async () => {
       // birthDate 포맷팅 로직
       birthDate: formData.value.birth_date
         ? formData.value.birth_date instanceof Date
-          ? formData.value.birth_date.toISOString().split("T")[0]
+          ? formData.value.birth_date.toISOString().split('T')[0]
           : formData.value.birth_date
         : null,
 
-      activityLevel: formData.value.activity_level || "NONE",
+      activityLevel: formData.value.activity_level || 'NONE',
     };
 
     await userStore.updateUserProfileInfo(payload);
 
-    alert("프로필 및 신체 정보가 성공적으로 수정되었습니다.");
+    alert('프로필 및 신체 정보가 성공적으로 수정되었습니다.');
 
     // 수정 완료, 조회 모드 복귀
     originalFormData.value = { ...formData.value, nickname: nickname.value };
     isEditMode.value = false;
   } catch (error) {
-    console.error("통합 수정 실패:", error);
-    formMsg.value = `수정에 실패했습니다. ${error.message || "서버 오류"}`;
-    formMsgStatus.value = "error";
+    console.error('통합 수정 실패:', error);
+    formMsg.value = `수정에 실패했습니다. ${error.message || '서버 오류'}`;
+    formMsgStatus.value = 'error';
   }
 };
 </script>

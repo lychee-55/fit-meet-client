@@ -54,7 +54,6 @@ import PasswordFields from '@/components/auth/passwordReset/PasswordFields.vue';
 
 const store = useAuthStore();
 
-// Props통해 라우터 뷰에서 토큰 받기
 const props = defineProps({
   resetToken: {
     type: String,
@@ -65,7 +64,7 @@ const props = defineProps({
 const passwordFieldsRef = ref(null);
 const newPassword = ref('');
 const pwCheck = ref('');
-// 하위 컴포넌트에서 emit 받은 유효성 상태를 저장
+
 const isPasswordValid = ref(false);
 const isPasswordMatch = ref(false);
 const formMsg = ref('');
@@ -74,7 +73,6 @@ const isLoading = ref(false);
 
 // 비밀번호 재설정 로직
 const submitPasswordReset = async () => {
-  // nextTick 활용, 모든 반응성 업데이트가 완료된 후 로직 실행
   await nextTick();
   const passwordLogic = passwordFieldsRef.value;
   formMsg.value = '';
@@ -90,7 +88,6 @@ const submitPasswordReset = async () => {
 
   // defineExpose 접근 대신, 직접 바인딩 받은 상태를 사용
   if (!isPasswordValid.value) {
-    console.log('유효성 검사 실패: isPasswordValid:', isPasswordValid.value);
     formMsgStatus.value = 'error';
     formMsg.value = '비밀번호가 요구 조건을 만족하지 않습니다.';
     passwordFieldsRef.value.passwordInput.focus();
@@ -108,7 +105,7 @@ const submitPasswordReset = async () => {
 
   try {
     const payload = {
-      token: props.resetToken, // 부모로부터 받은 토큰
+      token: props.resetToken,
       newPassword: newPassword.value,
     };
 
