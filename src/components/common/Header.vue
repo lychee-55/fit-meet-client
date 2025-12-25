@@ -13,7 +13,7 @@
             class="text-2xl font-bold text-blue-600 select-none transition-transform hover:scale-105"
           >
             <img
-              src="@/assets/FitmeetLogo3.png"
+              src="@/assets/FitmeetLogo2.png"
               alt="로고"
               class="w-24 md:w-24"
             />
